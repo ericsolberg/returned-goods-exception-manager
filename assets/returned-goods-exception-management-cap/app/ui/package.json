@@ -1,0 +1,8 @@
+{
+  "name": "returned-goods-exception-management-ui",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p dist && cp ../index.html dist/index.html && cp ../tapestry-logo.png dist/tapestry-logo.png && cp manifest.json dist/manifest.json && cp xs-app.json dist/xs-app.json"
+  }
+}

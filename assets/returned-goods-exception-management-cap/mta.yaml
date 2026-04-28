@@ -4,21 +4,7 @@ version: 1.0.0
 description: Returned Goods Exception Management CAP application
 
 modules:
-  - name: returned-goods-exception-management-approuter
-    type: approuter.nodejs
-    path: approuter
-    parameters:
-      memory: 128M
-      disk-quota: 256M
-    requires:
-      - name: returned-goods-exception-management-uaa
-      - name: srv-api
-        group: destinations
-        properties:
-          name: cap-backend
-          url: ~{srv-url}
-          forwardAuthToken: true
-
+  # ── CAP backend ────────────────────────────────────────────────────────
   - name: returned-goods-exception-management-srv
     type: nodejs
     path: gen/srv
@@ -36,12 +22,74 @@ modules:
       NODE_ENV: production
     requires:
       - name: returned-goods-exception-management-uaa
+      - name: returned-goods-exception-management-destination
     provides:
       - name: srv-api
         properties:
           srv-url: ${default-url}
 
+  # ── HTML5 app artifact ─────────────────────────────────────────────────
+  - name: returned-goods-exception-management-ui
+    type: html5
+    path: app/ui
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm run build
+      supported-platforms: []
+
+  # ── HTML5 content deployer (uploads zip to html5-host) ────────────────
+  - name: returned-goods-exception-management-app-content
+    type: com.sap.application.content
+    path: app/ui
+    requires:
+      - name: returned-goods-exception-management-html5-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: dist
+      requires:
+        - name: returned-goods-exception-management-ui
+          artifacts:
+            - com.tapestry.returnedgoodsexceptionmanagement.zip
+          target-path: dist/
+
+  # ── Destinations deployer (registers html5-repo + uaa for Work Zone) ──
+  - name: returned-goods-exception-management-destinations
+    type: com.sap.application.content
+    requires:
+      - name: returned-goods-exception-management-uaa
+        parameters:
+          service-key:
+            name: returned-goods-exception-management-uaa-key
+      - name: returned-goods-exception-management-html5-host
+        parameters:
+          service-key:
+            name: returned-goods-exception-management-html5-host-key
+      - name: srv-api
+      - name: returned-goods-exception-management-destination
+        parameters:
+          content-target: true
+    build-parameters:
+      no-source: true
+    parameters:
+      content:
+        instance:
+          existing_destinations_policy: update
+          destinations:
+            - Name: returned-goods-exception-management-html5-repo
+              ServiceInstanceName: returned-goods-exception-management-html5-host
+              ServiceKeyName: returned-goods-exception-management-html5-host-key
+              sap.cloud.service: returnedgoodsexceptionmanagement.service
+            - Name: returned-goods-exception-management-uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: returned-goods-exception-management-uaa
+              ServiceKeyName: returned-goods-exception-management-uaa-key
+              sap.cloud.service: returnedgoodsexceptionmanagement.service
+
 resources:
+  # ── XSUAA ──────────────────────────────────────────────────────────────
   - name: returned-goods-exception-management-uaa
     type: org.cloudfoundry.managed-service
     parameters:
@@ -52,11 +100,38 @@ resources:
         xsappname: returned-goods-exception-management
         tenant-mode: dedicated
 
+  # ── Destination service ─────────────────────────────────────────────────
+  - name: returned-goods-exception-management-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            existing_destinations_policy: update
+            destinations:
+              - Name: cap-backend
+                URL: ~{srv-api/srv-url}
+                Authentication: NoAuthentication
+                Type: HTTP
+                ProxyType: Internet
+                HTML5.ForwardAuthToken: true
+                HTML5.DynamicDestination: true
+    requires:
+      - name: srv-api
+
+  # ── HTML5 Application Repository (app-host) ────────────────────────────
+  - name: returned-goods-exception-management-html5-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+
 build-parameters:
   before-all:
     - builder: custom
       commands:
         - npm ci
         - npm run build
-        - cp app/index.html approuter/resources/index.html
-        - cp app/tapestry-logo.png approuter/resources/tapestry-logo.png
