@@ -76,11 +76,12 @@
       "sap/ui/model/json/JSONModel",
       "sap/ui/core/mvc/XMLView",
       "sap/m/FlexItemData",
+      "sap/ui/core/HTML",
     ], function(
       App, Page, Bar, Title, Button, Panel, VBox, HBox, MText, Label,
       ObjectStatus, ColumnListItem, Column, MTable, Dialog, Input, TextArea,
       Select, Item, IconTabBar, IconTabFilter, MessageStrip, ToolbarSpacer,
-      Toolbar, JSONModel, XMLView, FlexItemData
+      Toolbar, JSONModel, XMLView, FlexItemData, HTML
     ) {
 
       /* ── OData helper ─────────────────────────────────────────────────── */
@@ -392,6 +393,7 @@
         id: "listPage",
         customHeader: new Bar({
           contentLeft: [
+            new HTML({ content: '<span style="display:inline-flex;align-items:center;background:#F5C800;border-radius:4px;padding:4px 10px;margin-right:8px"><span style="font-family:\'Arial Black\',\'Helvetica Neue\',sans-serif;font-weight:900;font-size:15px;color:#000;white-space:nowrap;letter-spacing:-0.02em">tapestry</span></span>' }),
             new Title({ text: "Returned Goods Exception Management" }),
           ],
           contentRight: [
