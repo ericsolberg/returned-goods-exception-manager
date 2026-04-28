@@ -28,32 +28,16 @@ modules:
         properties:
           srv-url: ${default-url}
 
-  # ── HTML5 app artifact ─────────────────────────────────────────────────
-  - name: returned-goods-exception-management-ui
-    type: html5
-    path: app/ui
-    build-parameters:
-      build-result: dist
-      builder: custom
-      commands:
-        - npm run build
-      supported-platforms: []
-
   # ── HTML5 content deployer (uploads zip to html5-host) ────────────────
   - name: returned-goods-exception-management-app-content
     type: com.sap.application.content
-    path: app/ui
+    path: .
     requires:
       - name: returned-goods-exception-management-html5-host
         parameters:
           content-target: true
     build-parameters:
-      build-result: dist
-      requires:
-        - name: returned-goods-exception-management-ui
-          artifacts:
-            - com.tapestry.returnedgoodsexceptionmanagement.zip
-          target-path: dist/
+      build-result: resources
 
   # ── Destinations deployer (registers html5-repo + uaa for Work Zone) ──
   - name: returned-goods-exception-management-destinations
@@ -135,3 +119,4 @@ build-parameters:
       commands:
         - npm ci
         - npm run build
+        - mkdir -p resources && (cd app/ui && npm run build) && (cd app/ui/dist && zip -r ../../../resources/returned-goods-exception-management-ui.zip .)

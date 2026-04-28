@@ -35,3 +35,4 @@ mta_archives/
 
 # HTML5 app build output
 app/ui/dist/
+resources/
