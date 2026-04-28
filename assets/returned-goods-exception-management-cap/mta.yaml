@@ -59,3 +59,4 @@ build-parameters:
         - npm ci
         - npm run build
         - cp app/index.html approuter/resources/index.html
+        - cp app/tapestry-logo.png approuter/resources/tapestry-logo.png
