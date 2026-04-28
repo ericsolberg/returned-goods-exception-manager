@@ -59,4 +59,3 @@ build-parameters:
         - npm ci
         - npm run build
         - cp app/index.html approuter/resources/index.html
-        - cp app/ui5.html approuter/resources/ui5.html

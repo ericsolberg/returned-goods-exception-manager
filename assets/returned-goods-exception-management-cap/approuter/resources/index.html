@@ -4,218 +4,122 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Returned Goods Exception Management</title>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #f5f6fa; color: #222; }
-    .app { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+  <script id="sap-ui-bootstrap"
+    src="https://sdk.openui5.org/resources/sap-ui-core.js"
+    data-sap-ui-theme="sap_horizon"
+    data-sap-ui-libs="sap.m,sap.ui.layout"
+    data-sap-ui-async="true"
+    data-sap-ui-compatversion="edge"
+    data-sap-ui-oninit="onUI5Init">
+  </script>
+  <script>
+    function onUI5Init() {
+    sap.ui.require([
+      "sap/m/App",
+      "sap/m/Page",
+      "sap/m/Bar",
+      "sap/m/Title",
+      "sap/m/Button",
+      "sap/m/Panel",
+      "sap/m/VBox",
+      "sap/m/HBox",
+      "sap/m/Text",
+      "sap/m/Label",
+      "sap/m/ObjectStatus",
+      "sap/m/ColumnListItem",
+      "sap/m/Column",
+      "sap/m/Table",
+      "sap/m/Dialog",
+      "sap/m/Input",
+      "sap/m/TextArea",
+      "sap/m/Select",
+      "sap/ui/core/Item",
+      "sap/m/IconTabBar",
+      "sap/m/IconTabFilter",
+      "sap/m/MessageStrip",
+      "sap/m/ToolbarSpacer",
+      "sap/m/Toolbar",
+      "sap/ui/model/json/JSONModel",
+      "sap/ui/core/mvc/XMLView",
+      "sap/m/FlexItemData",
+    ], function(
+      App, Page, Bar, Title, Button, Panel, VBox, HBox, MText, Label,
+      ObjectStatus, ColumnListItem, Column, MTable, Dialog, Input, TextArea,
+      Select, Item, IconTabBar, IconTabFilter, MessageStrip, ToolbarSpacer,
+      Toolbar, JSONModel, XMLView, FlexItemData
+    ) {
 
-    .topbar { background: #1a73e8; color: #fff; padding: .75rem 1rem; border-radius: 8px 8px 0 0; font-size: 1.1rem; font-weight: 600; }
-
-    .tabs { display: flex; gap: 2px; background: #e0e0e0; border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 1rem; }
-    .tabs button { flex: 1; padding: .5rem; border: none; background: #fff; cursor: pointer; font-size: .85rem; }
-    .tabs button.active { background: #1a73e8; color: #fff; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: .5rem; font-size: .85rem; }
-    th, td { border: 1px solid #ddd; padding: .4rem .6rem; text-align: left; }
-    th { background: #f0f0f0; font-weight: 600; }
-    tr:nth-child(even) { background: #fafafa; }
-    tr.clickable:hover { background: #e8f0fe; cursor: pointer; }
-    td.num { text-align: right; font-variant-numeric: tabular-nums; }
-
-    .btn { padding: .3rem .7rem; border: none; border-radius: 12px; cursor: pointer; font-size: .78rem; margin-right: .3rem; }
-    .btn-neutral { background: #e0e0e0; color: #333; }
-    .btn-green  { background: #34a853; color: #fff; }
-    .btn-red    { background: #ea4335; color: #fff; }
-    .btn-amber  { background: #f9ab00; color: #fff; }
-    .btn-blue   { background: #1a73e8; color: #fff; }
-
-    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 8px; font-size: .75rem; font-weight: 600; }
-    .badge-green  { background: #e6f4ea; color: #1e7e34; }
-    .badge-red    { background: #fce8e6; color: #c5221f; }
-    .badge-amber  { background: #fef7e0; color: #e37400; }
-    .badge-orange { background: #fde7cc; color: #b54708; }
-    .badge-grey   { background: #f1f3f4; color: #5f6368; }
-
-    .banner { padding: .5rem 1rem; border-radius: 6px; margin: .5rem 0; font-size: .85rem; }
-    .banner-ok  { background: #e6f4ea; color: #1e7e34; }
-    .banner-err { background: #fce8e6; color: #c5221f; }
-
-    dialog { border: none; border-radius: 10px; padding: 1.5rem; min-width: 320px; }
-    dialog::backdrop { background: rgba(0,0,0,.35); }
-    dialog h3 { margin-bottom: .75rem; }
-    dialog label { display: block; margin-top: .6rem; font-size: .85rem; font-weight: 500; }
-    dialog input, dialog select, dialog textarea {
-      width: 100%; padding: .35rem; margin-top: .2rem; border: 1px solid #ccc; border-radius: 4px; font-size: .85rem;
-    }
-    dialog textarea { min-height: 60px; resize: vertical; }
-    dialog .actions { display: flex; gap: .5rem; margin-top: 1rem; justify-content: flex-end; }
-
-    .toolbar { display: flex; gap: .5rem; align-items: center; margin: .75rem 0; flex-wrap: wrap; }
-    .section-title { font-size: .9rem; font-weight: 600; margin: 1rem 0 .25rem; color: #444; }
-    .side-by-side { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .detail-header { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
-    .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .4rem .8rem; }
-    .field-item label { font-size: .75rem; color: #666; }
-    .field-item span { display: block; font-size: .85rem; }
-    .detail-tabs { display: flex; gap: 2px; background: #e0e0e0; border-radius: 6px; overflow: hidden; margin: 1rem 0 .5rem; }
-    .detail-tabs button { padding: .4rem 1rem; border: none; background: #fff; cursor: pointer; font-size: .82rem; }
-    .detail-tabs button.active { background: #1a73e8; color: #fff; }
-  </style>
-</head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const BASE = "/exception";
-
-    /* ── OData helper ─────────────────────────────────────────────────────── */
-    async function odata(path, opts = {}) {
-      const res = await fetch(BASE + path, {
-        ...opts,
-        headers: { "Content-Type": "application/json", ...opts.headers },
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || res.statusText);
-      }
-      return res.status === 204 ? null : res.json();
-    }
-
-    /* ── Status badge ────────────────────────────────────────────────────── */
-    function StatusBadge({ code }) {
-      const map = {
-        MATCHED:            { cls: "badge-amber",  label: "Matched" },
-        AMBIGUOUS:          { cls: "badge-orange", label: "Ambiguous" },
-        UNMATCHED:          { cls: "badge-red",    label: "Unmatched" },
-        RESOLVED_CONFIRMED: { cls: "badge-green",  label: "Confirmed" },
-        RESOLVED_REJECTED:  { cls: "badge-grey",   label: "Rejected" },
-        RESOLVED_LINKED:    { cls: "badge-green",  label: "Linked" },
-        PENDING_SIGNAL:     { cls: "badge-grey",   label: "Pending Signal" },
-      };
-      const { cls, label } = map[code] || { cls: "badge-grey", label: code || "—" };
-      return <span className={`badge ${cls}`}>{label}</span>;
-    }
-
-    function SignalBadge({ code }) {
-      const map = {
-        SENT:    { cls: "badge-green",  label: "Sent" },
-        FAILED:  { cls: "badge-red",    label: "Failed" },
-        PENDING: { cls: "badge-grey",   label: "Pending" },
-      };
-      const { cls, label } = map[code] || { cls: "badge-grey", label: code || "—" };
-      return <span className={`badge ${cls}`}>{label}</span>;
-    }
-
-    /* ── Banner ───────────────────────────────────────────────────────────── */
-    function Banner({ msg, type, onDismiss }) {
-      React.useEffect(() => {
-        if (type === "ok") {
-          const t = setTimeout(onDismiss, 3000);
-          return () => clearTimeout(t);
+      /* ── OData helper ─────────────────────────────────────────────────── */
+      const BASE = "/exception";
+      async function odata(path, opts = {}) {
+        const res = await fetch(BASE + path, {
+          ...opts,
+          headers: { "Content-Type": "application/json", ...opts.headers },
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || res.statusText);
         }
-      }, [msg]);
-      if (!msg) return null;
-      return (
-        <div className={`banner banner-${type}`} onClick={onDismiss} style={{ cursor: "pointer" }}>
-          {msg}
-        </div>
-      );
-    }
+        return res.status === 204 ? null : res.json();
+      }
 
-    /* ── Simple dialog helper ─────────────────────────────────────────────── */
-    function useDialog() {
-      const ref = React.useRef(null);
-      const open  = () => ref.current?.showModal();
-      const close = () => ref.current?.close();
-      return [ref, open, close];
-    }
+      /* ── Status helpers ───────────────────────────────────────────────── */
+      function statusState(code) {
+        const map = {
+          MATCHED:            "Warning",
+          AMBIGUOUS:          "Warning",
+          UNMATCHED:          "Error",
+          RESOLVED_CONFIRMED: "Success",
+          RESOLVED_REJECTED:  "None",
+          RESOLVED_LINKED:    "Success",
+          PENDING_SIGNAL:     "None",
+        };
+        return map[code] || "None";
+      }
+      function statusText(code) {
+        const map = {
+          MATCHED:            "Matched",
+          AMBIGUOUS:          "Ambiguous",
+          UNMATCHED:          "Unmatched",
+          RESOLVED_CONFIRMED: "Confirmed",
+          RESOLVED_REJECTED:  "Rejected",
+          RESOLVED_LINKED:    "Linked",
+          PENDING_SIGNAL:     "Pending Signal",
+        };
+        return map[code] || code || "—";
+      }
+      function signalState(code) {
+        return code === "SENT" ? "Success" : code === "FAILED" ? "Error" : "None";
+      }
 
-    /* ══════════════════════════════════════════════════════════════════════════
-       WORKLIST
-    ══════════════════════════════════════════════════════════════════════════ */
-    function Worklist({ onSelect }) {
-      const [orders, setOrders] = React.useState([]);
-      const [loading, setLoading] = React.useState(true);
-      const [error, setError] = React.useState(null);
+      /* ── Models ───────────────────────────────────────────────────────── */
+      const listModel    = new JSONModel({ orders: [], loading: false });
+      const detailModel  = new JSONModel({ order: null, expected: [], received: [], history: [], detailTab: "items" });
+      const bannerModel  = new JSONModel({ msg: "", type: "Information", visible: false });
 
-      async function load() {
-        setLoading(true);
+      /* ── Banner helpers ───────────────────────────────────────────────── */
+      let bannerTimer = null;
+      function showBanner(msg, type) {
+        clearTimeout(bannerTimer);
+        bannerModel.setData({ msg, type, visible: true });
+        if (type === "Success") bannerTimer = setTimeout(() => bannerModel.setData({ msg: "", type: "Information", visible: false }), 3000);
+      }
+
+      /* ── Load worklist ───────────────────────────────────────────────── */
+      async function loadList() {
+        listModel.setProperty("/loading", true);
         try {
           const d = await odata("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus");
-          setOrders(d.value);
+          listModel.setProperty("/orders", d.value);
         } catch (e) {
-          setError(e.message);
+          showBanner(e.message, "Error");
         } finally {
-          setLoading(false);
+          listModel.setProperty("/loading", false);
         }
       }
 
-      React.useEffect(() => { load(); }, []);
-
-      if (loading) return <p style={{ padding: "1rem" }}>Loading…</p>;
-      if (error)   return <p className="banner banner-err">{error}</p>;
-
-      return (
-        <>
-          <div className="toolbar">
-            <strong>Return Orders</strong>
-            <button className="btn btn-neutral" onClick={load}>↻ Refresh</button>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>External Order Ref</th>
-                <th>Customer Ref</th>
-                <th>Received Date</th>
-                <th>Status</th>
-                <th>Signal Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length === 0 && (
-                <tr><td colSpan={5} style={{ textAlign: "center", color: "#888" }}>No orders found</td></tr>
-              )}
-              {orders.map(o => (
-                <tr key={o.ID} className="clickable" onClick={() => onSelect(o.ID)}>
-                  <td>{o.externalOrderRef}</td>
-                  <td>{o.customerRef || "—"}</td>
-                  <td>{o.receivedDate || "—"}</td>
-                  <td><StatusBadge code={o.status_code} /></td>
-                  <td><SignalBadge code={o.signalStatus} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      );
-    }
-
-    /* ══════════════════════════════════════════════════════════════════════════
-       DETAIL VIEW
-    ══════════════════════════════════════════════════════════════════════════ */
-    function Detail({ id, onBack }) {
-      const [order, setOrder]     = React.useState(null);
-      const [expected, setExpected] = React.useState([]);
-      const [received, setReceived] = React.useState([]);
-      const [history, setHistory]   = React.useState([]);
-      const [detailTab, setDetailTab] = React.useState("items");
-      const [banner, setBanner]     = React.useState({ msg: "", type: "ok" });
-      const [loading, setLoading]   = React.useState(true);
-
-      /* dialogs */
-      const [escalateRef, openEscalate, closeEscalate] = useDialog();
-      const [resolveRef,  openResolve,  closeResolve]  = useDialog();
-      const [rejectRef,   openReject,   closeReject]   = useDialog();
-      const [linkRef,     openLink,     closeLink]      = useDialog();
-
-      const [form, setForm] = React.useState({});
-
-      function setField(k, v) { setForm(f => ({ ...f, [k]: v })); }
-
-      async function load() {
-        setLoading(true);
+      /* ── Load detail ─────────────────────────────────────────────────── */
+      async function loadDetail(id) {
         try {
           const [o, exp, rec, hist] = await Promise.all([
             odata(`/ReturnOrders(${id})`),
@@ -223,252 +127,396 @@
             odata(`/ReturnOrders(${id})/receivedItems`),
             odata(`/ReturnOrders(${id})/auditHistory?$orderby=createdAt desc`),
           ]);
-          setOrder(o);
-          setExpected(exp.value);
-          setReceived(rec.value);
-          setHistory(hist.value);
+          detailModel.setData({ order: o, expected: exp.value, received: rec.value, history: hist.value, detailTab: "items" });
         } catch (e) {
-          setBanner({ msg: e.message, type: "err" });
-        } finally {
-          setLoading(false);
+          showBanner(e.message, "Error");
         }
       }
 
-      React.useEffect(() => { load(); }, [id]);
-
+      /* ── Call action ─────────────────────────────────────────────────── */
       async function callAction(action, body = {}) {
+        const id = detailModel.getProperty("/order/ID");
         try {
           await odata(`/ReturnOrders(${id})/ExceptionService.${action}`, {
             method: "POST",
             body: JSON.stringify(body),
           });
-          setBanner({ msg: `${action} succeeded`, type: "ok" });
-          await load();
+          showBanner(`${action} completed successfully`, "Success");
+          await loadDetail(id);
+          await loadList();
         } catch (e) {
-          setBanner({ msg: e.message, type: "err" });
+          showBanner(e.message, "Error");
         }
       }
 
-      if (loading) return <p style={{ padding: "1rem" }}>Loading…</p>;
-      if (!order)  return <p className="banner banner-err">Order not found</p>;
+      /* ══════════════════════════════════════════════════════════════════
+         DIALOGS
+      ══════════════════════════════════════════════════════════════════ */
 
-      const status = order.status_code;
+      /* ── Escalate ── */
+      const escalateReasonInput = new TextArea({ width: "100%", placeholder: "Describe the ambiguity…", rows: 3 });
+      const escalateDialog = new Dialog({
+        title: "Escalate Order",
+        content: [
+          new Label({ text: "Reason", required: true }),
+          escalateReasonInput,
+        ],
+        beginButton: new Button({
+          text: "Cancel", type: "Default",
+          press: () => escalateDialog.close(),
+        }),
+        endButton: new Button({
+          text: "Escalate", type: "Emphasized",
+          press: async () => {
+            escalateDialog.close();
+            await callAction("escalate", { reason: escalateReasonInput.getValue() });
+          },
+        }),
+      });
 
-      return (
-        <div>
-          <div className="toolbar">
-            <button className="btn btn-neutral" onClick={onBack}>← Back</button>
-            <strong>{order.externalOrderRef}</strong>
-            <StatusBadge code={status} />
-            <SignalBadge code={order.signalStatus} />
-          </div>
+      /* ── Resolve ── */
+      const resolveDecisionSelect = new Select({
+        items: [
+          new Item({ key: "ACCEPT", text: "Accept" }),
+          new Item({ key: "REJECT", text: "Reject" }),
+        ],
+      });
+      const resolveReasonInput = new TextArea({ width: "100%", placeholder: "Resolution reason…", rows: 3 });
+      const resolveDialog = new Dialog({
+        title: "Resolve Order",
+        content: [
+          new Label({ text: "Decision", required: true }),
+          resolveDecisionSelect,
+          new Label({ text: "Reason", required: true }),
+          resolveReasonInput,
+        ],
+        beginButton: new Button({
+          text: "Cancel", type: "Default",
+          press: () => resolveDialog.close(),
+        }),
+        endButton: new Button({
+          text: "Confirm", type: "Emphasized",
+          press: async () => {
+            resolveDialog.close();
+            await callAction("resolve", {
+              decision: resolveDecisionSelect.getSelectedKey(),
+              reason: resolveReasonInput.getValue(),
+            });
+          },
+        }),
+      });
 
-          <Banner
-            msg={banner.msg}
-            type={banner.type}
-            onDismiss={() => setBanner({ msg: "", type: "ok" })}
-          />
+      /* ── Reject ── */
+      const rejectReasonInput = new TextArea({ width: "100%", placeholder: "Rejection reason…", rows: 3 });
+      const rejectDialog = new Dialog({
+        title: "Reject Order",
+        content: [
+          new Label({ text: "Reason", required: true }),
+          rejectReasonInput,
+        ],
+        beginButton: new Button({
+          text: "Cancel", type: "Default",
+          press: () => rejectDialog.close(),
+        }),
+        endButton: new Button({
+          text: "Reject", type: "Reject",
+          press: async () => {
+            rejectDialog.close();
+            await callAction("reject", { reason: rejectReasonInput.getValue() });
+          },
+        }),
+      });
 
-          {/* ── Header fields ── */}
-          <div className="detail-header">
-            <div className="field-grid">
-              {[
-                ["External Order Ref", order.externalOrderRef],
-                ["Customer Ref",       order.customerRef],
-                ["Received Date",      order.receivedDate],
-                ["Linked Order ID",    order.linkedOrderId],
-                ["Notes",              order.notes],
-                ["Created By",         order.createdBy],
-                ["Created At",         order.createdAt ? new Date(order.createdAt).toLocaleString() : ""],
-              ].map(([lbl, val]) => (
-                <div key={lbl} className="field-item">
-                  <label>{lbl}</label>
-                  <span>{val || "—"}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      /* ── Link Order ── */
+      const linkOrderIdInput = new Input({ width: "100%", placeholder: "SO-2024-XXXXX" });
+      const linkReasonInput  = new TextArea({ width: "100%", placeholder: "Optional reason…", rows: 3 });
+      const linkDialog = new Dialog({
+        title: "Link to Sales Order",
+        content: [
+          new Label({ text: "Sales Order ID", required: true }),
+          linkOrderIdInput,
+          new Label({ text: "Reason" }),
+          linkReasonInput,
+        ],
+        beginButton: new Button({
+          text: "Cancel", type: "Default",
+          press: () => linkDialog.close(),
+        }),
+        endButton: new Button({
+          text: "Link", type: "Emphasized",
+          press: async () => {
+            linkDialog.close();
+            await callAction("linkOrder", {
+              linkedOrderId: linkOrderIdInput.getValue(),
+              reason: linkReasonInput.getValue(),
+            });
+          },
+        }),
+      });
 
-          {/* ── Action buttons ── */}
-          <div className="toolbar">
-            {status === "MATCHED" && <>
-              <button className="btn btn-green" onClick={() => callAction("confirm")}>Confirm</button>
-              <button className="btn btn-amber" onClick={() => { setForm({}); openEscalate(); }}>Escalate</button>
-            </>}
-            {status === "AMBIGUOUS" && <>
-              <button className="btn btn-green" onClick={() => { setForm({}); openResolve(); }}>Resolve</button>
-              <button className="btn btn-red"   onClick={() => { setForm({}); openReject(); }}>Reject</button>
-            </>}
-            {status === "UNMATCHED" && <>
-              <button className="btn btn-blue" onClick={() => { setForm({}); openLink(); }}>Link Order</button>
-              <button className="btn btn-red"  onClick={() => { setForm({}); openReject(); }}>Reject</button>
-            </>}
-            {order.signalStatus === "FAILED" && (
-              <button className="btn btn-blue" onClick={() => callAction("retrySignal")}>Retry Signal</button>
-            )}
-          </div>
+      /* ══════════════════════════════════════════════════════════════════
+         BANNER
+      ══════════════════════════════════════════════════════════════════ */
+      const bannerStrip = new MessageStrip({
+        showIcon: true,
+        showCloseButton: true,
+        visible: false,
+        close: () => bannerModel.setData({ msg: "", type: "Information", visible: false }),
+      }).addStyleClass("sapUiSmallMarginBottom");
+      bannerStrip.setModel(bannerModel);
+      bannerStrip.bindProperty("text",    "/msg");
+      bannerStrip.bindProperty("type",    "/type");
+      bannerStrip.bindProperty("visible", "/visible");
 
-          {/* ── Detail sub-tabs ── */}
-          <div className="detail-tabs">
-            <button className={detailTab === "items"   ? "active" : ""} onClick={() => setDetailTab("items")}>Items</button>
-            <button className={detailTab === "history" ? "active" : ""} onClick={() => setDetailTab("history")}>History ({history.length})</button>
-          </div>
+      /* ══════════════════════════════════════════════════════════════════
+         WORKLIST PAGE
+      ══════════════════════════════════════════════════════════════════ */
+      const worklist = new MTable({
+        growing: true,
+        growingThreshold: 20,
+        mode: "SingleSelectMaster",
+        selectionChange: async (evt) => {
+          const item = evt.getParameter("listItem");
+          const ctx  = item.getBindingContext("list");
+          const id   = ctx.getProperty("ID");
+          await loadDetail(id);
+          app.to("detailPage");
+        },
+        columns: [
+          new Column({ header: new Label({ text: "External Order Ref" }), width: "16rem" }),
+          new Column({ header: new Label({ text: "Customer Ref" }),        width: "12rem" }),
+          new Column({ header: new Label({ text: "Received Date" }),       width: "10rem" }),
+          new Column({ header: new Label({ text: "Status" }),              width: "11rem" }),
+          new Column({ header: new Label({ text: "Signal Status" }),       width: "9rem"  }),
+        ],
+      });
 
-          {detailTab === "items" && (
-            <div className="side-by-side">
-              <div>
-                <div className="section-title">Expected Items</div>
-                <table>
-                  <thead><tr><th>Material ID</th><th>Description</th><th>Qty</th><th>Unit</th></tr></thead>
-                  <tbody>
-                    {expected.length === 0 && <tr><td colSpan={4} style={{ color: "#888" }}>None</td></tr>}
-                    {expected.map(e => (
-                      <tr key={e.ID}>
-                        <td>{e.materialId}</td>
-                        <td>{e.materialDescription}</td>
-                        <td className="num">{e.expectedQty}</td>
-                        <td>{e.unit}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div>
-                <div className="section-title">Received Items</div>
-                <table>
-                  <thead><tr><th>Material ID</th><th>Description</th><th>Qty</th><th>Unit</th><th>Condition</th></tr></thead>
-                  <tbody>
-                    {received.length === 0 && <tr><td colSpan={5} style={{ color: "#888" }}>None</td></tr>}
-                    {received.map(r => (
-                      <tr key={r.ID}>
-                        <td>{r.materialId}</td>
-                        <td>{r.materialDescription}</td>
-                        <td className="num">{r.receivedQty}</td>
-                        <td>{r.unit}</td>
-                        <td>{r.condition}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+      worklist.setModel(listModel, "list");
+      worklist.bindItems({
+        model: "list",
+        path: "/orders",
+        template: new ColumnListItem({
+          cells: [
+            new MText({ text: "{list>externalOrderRef}" }),
+            new MText({ text: "{list>customerRef}" }),
+            new MText({ text: "{list>receivedDate}" }),
+            new ObjectStatus({
+              text:  { path: "list>status_code", formatter: statusText  },
+              state: { path: "list>status_code", formatter: statusState },
+            }),
+            new ObjectStatus({
+              text:  { path: "list>signalStatus", formatter: v => v || "—" },
+              state: { path: "list>signalStatus", formatter: signalState },
+            }),
+          ],
+        }),
+      });
 
-          {detailTab === "history" && (
-            <table>
-              <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Reason</th></tr></thead>
-              <tbody>
-                {history.length === 0 && <tr><td colSpan={4} style={{ color: "#888" }}>No history</td></tr>}
-                {history.map(h => (
-                  <tr key={h.ID}>
-                    <td>{h.createdAt ? new Date(h.createdAt).toLocaleString() : "—"}</td>
-                    <td>{h.userId || h.createdBy}</td>
-                    <td>{h.action}</td>
-                    <td>{h.reason || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+      const listPage = new Page({
+        id: "listPage",
+        title: "Returned Goods Exception Management",
+        headerContent: [
+          new Button({ icon: "sap-icon://refresh", press: loadList }),
+        ],
+        content: [bannerStrip, worklist],
+      });
 
-          {/* ── Escalate dialog ── */}
-          <dialog ref={escalateRef}>
-            <h3>Escalate Order</h3>
-            <label>Reason *
-              <textarea value={form.reason || ""} onChange={e => setField("reason", e.target.value)} placeholder="Describe the ambiguity…" />
-            </label>
-            <div className="actions">
-              <button className="btn btn-neutral" onClick={closeEscalate}>Cancel</button>
-              <button className="btn btn-amber" onClick={async () => {
-                closeEscalate();
-                await callAction("escalate", { reason: form.reason || "" });
-              }}>Escalate</button>
-            </div>
-          </dialog>
+      /* ══════════════════════════════════════════════════════════════════
+         DETAIL PAGE
+      ══════════════════════════════════════════════════════════════════ */
 
-          {/* ── Resolve dialog ── */}
-          <dialog ref={resolveRef}>
-            <h3>Resolve Order</h3>
-            <label>Decision *
-              <select value={form.decision || "ACCEPT"} onChange={e => setField("decision", e.target.value)}>
-                <option value="ACCEPT">Accept</option>
-                <option value="REJECT">Reject</option>
-              </select>
-            </label>
-            <label>Reason *
-              <textarea value={form.reason || ""} onChange={e => setField("reason", e.target.value)} placeholder="Resolution reason…" />
-            </label>
-            <div className="actions">
-              <button className="btn btn-neutral" onClick={closeResolve}>Cancel</button>
-              <button className="btn btn-green" onClick={async () => {
-                closeResolve();
-                await callAction("resolve", { decision: form.decision || "ACCEPT", reason: form.reason || "" });
-              }}>Confirm</button>
-            </div>
-          </dialog>
+      /* ── Action toolbar (bound dynamically) ── */
+      const confirmBtn    = new Button({ text: "Confirm",      type: "Emphasized",    press: () => callAction("confirm") });
+      const escalateBtn   = new Button({ text: "Escalate",     type: "Default",       press: () => { escalateReasonInput.setValue(""); escalateDialog.open(); } });
+      const resolveBtn    = new Button({ text: "Resolve",      type: "Emphasized",    press: () => { resolveReasonInput.setValue(""); resolveDialog.open(); } });
+      const rejectBtn     = new Button({ text: "Reject",       type: "Reject",        press: () => { rejectReasonInput.setValue(""); rejectDialog.open(); } });
+      const linkBtn       = new Button({ text: "Link Order",   type: "Default",       press: () => { linkOrderIdInput.setValue(""); linkReasonInput.setValue(""); linkDialog.open(); } });
+      const retryBtn      = new Button({ text: "Retry Signal", type: "Default",       press: () => callAction("retrySignal") });
 
-          {/* ── Reject dialog ── */}
-          <dialog ref={rejectRef}>
-            <h3>Reject Order</h3>
-            <label>Reason *
-              <textarea value={form.reason || ""} onChange={e => setField("reason", e.target.value)} placeholder="Rejection reason…" />
-            </label>
-            <div className="actions">
-              <button className="btn btn-neutral" onClick={closeReject}>Cancel</button>
-              <button className="btn btn-red" onClick={async () => {
-                closeReject();
-                await callAction("reject", { reason: form.reason || "" });
-              }}>Reject</button>
-            </div>
-          </dialog>
+      /* Show/hide based on status */
+      function refreshActionButtons() {
+        const order = detailModel.getProperty("/order");
+        const status = order?.status_code;
+        const signal = order?.signalStatus;
+        confirmBtn .setVisible(status === "MATCHED");
+        escalateBtn.setVisible(status === "MATCHED");
+        resolveBtn .setVisible(status === "AMBIGUOUS");
+        rejectBtn  .setVisible(status === "AMBIGUOUS" || status === "UNMATCHED");
+        linkBtn    .setVisible(status === "UNMATCHED");
+        retryBtn   .setVisible(signal === "FAILED");
+      }
+      detailModel.attachPropertyChange(refreshActionButtons);
 
-          {/* ── Link Order dialog ── */}
-          <dialog ref={linkRef}>
-            <h3>Link to Sales Order</h3>
-            <label>Sales Order ID *
-              <input type="text" value={form.linkedOrderId || ""} onChange={e => setField("linkedOrderId", e.target.value)} placeholder="SO-2024-XXXXX" />
-            </label>
-            <label>Reason
-              <textarea value={form.reason || ""} onChange={e => setField("reason", e.target.value)} placeholder="Optional reason…" />
-            </label>
-            <div className="actions">
-              <button className="btn btn-neutral" onClick={closeLink}>Cancel</button>
-              <button className="btn btn-blue" onClick={async () => {
-                closeLink();
-                await callAction("linkOrder", { linkedOrderId: form.linkedOrderId || "", reason: form.reason || "" });
-              }}>Link</button>
-            </div>
-          </dialog>
-        </div>
-      );
-    }
+      const actionToolbar = new Toolbar({
+        content: [
+          confirmBtn, escalateBtn, resolveBtn, rejectBtn, linkBtn, retryBtn,
+          new ToolbarSpacer(),
+        ],
+      });
 
-    /* ══════════════════════════════════════════════════════════════════════════
-       APP
-    ══════════════════════════════════════════════════════════════════════════ */
-    function App() {
-      const [selectedId, setSelectedId] = React.useState(null);
+      /* ── Header form ── */
+      function detailField(label, path) {
+        const box = new VBox({ width: "16rem" });
+        const lbl = new Label({ text: label });
+        const val = new MText();
+        val.bindProperty("text", { model: "detail", path, formatter: v => v || "—" });
+        box.addItem(lbl);
+        box.addItem(val);
+        return box;
+      }
 
-      return (
-        <div className="app">
-          <div className="topbar">Returned Goods Exception Management</div>
-          <div className="tabs">
-            <button className={!selectedId ? "active" : ""} onClick={() => setSelectedId(null)}>
-              Worklist
-            </button>
-            {selectedId && <button className="active">Order Detail</button>}
-          </div>
+      const headerForm = new HBox({
+        wrap: "Wrap",
+        renderType: "Bare",
+        items: [
+          detailField("External Order Ref", "/order/externalOrderRef"),
+          detailField("Customer Ref",       "/order/customerRef"),
+          detailField("Received Date",      "/order/receivedDate"),
+          detailField("Linked Order ID",    "/order/linkedOrderId"),
+          detailField("Notes",              "/order/notes"),
+          detailField("Created By",         "/order/createdBy"),
+        ],
+      }).addStyleClass("sapUiSmallMarginBottom");
 
-          {selectedId
-            ? <Detail id={selectedId} onBack={() => setSelectedId(null)} />
-            : <Worklist onSelect={id => setSelectedId(id)} />
-          }
-        </div>
-      );
-    }
+      const statusDisplay = new ObjectStatus({
+        title: "Status",
+      });
+      statusDisplay.setModel(detailModel, "detail");
+      statusDisplay.bindProperty("text",  { model: "detail", path: "/order/status_code",  formatter: statusText  });
+      statusDisplay.bindProperty("state", { model: "detail", path: "/order/status_code",  formatter: statusState });
 
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App />);
+      const signalDisplay = new ObjectStatus({ title: "Signal" });
+      signalDisplay.setModel(detailModel, "detail");
+      signalDisplay.bindProperty("text",  { model: "detail", path: "/order/signalStatus", formatter: v => v || "—" });
+      signalDisplay.bindProperty("state", { model: "detail", path: "/order/signalStatus", formatter: signalState });
+
+      const headerStatusBar = new HBox({
+        items: [statusDisplay, signalDisplay],
+        renderType: "Bare",
+      }).addStyleClass("sapUiSmallMarginBottom");
+      headerStatusBar.setModel(detailModel, "detail");
+
+      /* ── Expected Items table ── */
+      const expectedTable = new MTable({
+        headerText: "Expected Items",
+        columns: [
+          new Column({ header: new Label({ text: "Material ID" }),    width: "9rem"  }),
+          new Column({ header: new Label({ text: "Description" }),    width: "auto"  }),
+          new Column({ header: new Label({ text: "Qty" }),            width: "6rem", hAlign: "End" }),
+          new Column({ header: new Label({ text: "Unit" }),           width: "5rem"  }),
+        ],
+      });
+      expectedTable.setModel(detailModel, "detail");
+      expectedTable.bindItems({
+        model: "detail", path: "/expected",
+        template: new ColumnListItem({
+          cells: [
+            new MText({ text: "{detail>materialId}" }),
+            new MText({ text: "{detail>materialDescription}" }),
+            new MText({ text: "{detail>expectedQty}" }),
+            new MText({ text: "{detail>unit}" }),
+          ],
+        }),
+      });
+
+      /* ── Received Items table ── */
+      const receivedTable = new MTable({
+        headerText: "Received Items",
+        columns: [
+          new Column({ header: new Label({ text: "Material ID" }),    width: "9rem"  }),
+          new Column({ header: new Label({ text: "Description" }),    width: "auto"  }),
+          new Column({ header: new Label({ text: "Qty" }),            width: "6rem", hAlign: "End" }),
+          new Column({ header: new Label({ text: "Unit" }),           width: "5rem"  }),
+          new Column({ header: new Label({ text: "Condition" }),      width: "8rem"  }),
+        ],
+      });
+      receivedTable.setModel(detailModel, "detail");
+      receivedTable.bindItems({
+        model: "detail", path: "/received",
+        template: new ColumnListItem({
+          cells: [
+            new MText({ text: "{detail>materialId}" }),
+            new MText({ text: "{detail>materialDescription}" }),
+            new MText({ text: "{detail>receivedQty}" }),
+            new MText({ text: "{detail>unit}" }),
+            new MText({ text: "{detail>condition}" }),
+          ],
+        }),
+      });
+
+      /* ── Audit History table ── */
+      const historyTable = new MTable({
+        headerText: "Audit History",
+        columns: [
+          new Column({ header: new Label({ text: "Timestamp" }),  width: "14rem" }),
+          new Column({ header: new Label({ text: "User" }),        width: "14rem" }),
+          new Column({ header: new Label({ text: "Action" }),      width: "12rem" }),
+          new Column({ header: new Label({ text: "Reason" }),      width: "auto"  }),
+        ],
+      });
+      historyTable.setModel(detailModel, "detail");
+      historyTable.bindItems({
+        model: "detail", path: "/history",
+        template: new ColumnListItem({
+          cells: [
+            new MText({ text: { path: "detail>createdAt", formatter: v => v ? new Date(v).toLocaleString() : "—" } }),
+            new MText({ text: { path: "detail>userId",    formatter: v => v || "—" } }),
+            new MText({ text: "{detail>action}" }),
+            new MText({ text: { path: "detail>reason",   formatter: v => v || "—" } }),
+          ],
+        }),
+      });
+
+      /* ── IconTabBar ── */
+      const tabBar = new IconTabBar({
+        items: [
+          new IconTabFilter({ text: "Items",   key: "items",   content: [
+            new HBox({ renderType: "Bare", wrap: "Wrap", items: [expectedTable, receivedTable] }),
+          ]}),
+          new IconTabFilter({ text: "History", key: "history", content: [historyTable] }),
+        ],
+      });
+
+      const detailBanner = new MessageStrip({
+        showIcon: true,
+        showCloseButton: true,
+        visible: false,
+        close: () => bannerModel.setData({ msg: "", type: "Information", visible: false }),
+      }).addStyleClass("sapUiSmallMarginBottom");
+      detailBanner.setModel(bannerModel);
+      detailBanner.bindProperty("text",    "/msg");
+      detailBanner.bindProperty("type",    "/type");
+      detailBanner.bindProperty("visible", "/visible");
+
+      const detailPage = new Page({
+        id: "detailPage",
+        showNavButton: true,
+        navButtonPress: () => { app.back(); bannerModel.setData({ msg: "", type: "Information", visible: false }); },
+        title: "Order Detail",
+        content: [
+          detailBanner,
+          headerStatusBar,
+          headerForm,
+          actionToolbar,
+          tabBar,
+        ],
+      });
+      detailPage.setModel(detailModel, "detail");
+
+      /* ══════════════════════════════════════════════════════════════════
+         APP SHELL
+      ══════════════════════════════════════════════════════════════════ */
+      const app = new App({
+        pages: [listPage, detailPage],
+      });
+
+      app.placeAt("content");
+      loadList();
+    });   // sap.ui.require callback
+    }     // onUI5Init
   </script>
+</head>
+<body class="sapUiBody">
+  <div id="content"></div>
 </body>
 </html>

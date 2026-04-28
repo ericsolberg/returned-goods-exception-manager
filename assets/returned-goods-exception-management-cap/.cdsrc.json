@@ -6,6 +6,7 @@
   },
   "[development]": {
     "requires": {
+      "auth": "dummy",
       "postingAgent": {
         "url": "http://localhost:5005/signal"
       }
