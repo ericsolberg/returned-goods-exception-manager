@@ -12,6 +12,40 @@
     data-sap-ui-compatversion="edge"
     data-sap-ui-oninit="onUI5Init">
   </script>
+  <style>
+    .rgmMetricsRow {
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      flex-wrap: wrap;
+    }
+    .rgmMetricCard {
+      border: 1px solid var(--sapList_BorderColor, #e0e0e0);
+      border-radius: 0.5rem;
+      padding: 1rem 1.5rem;
+      background: var(--sapBackgroundColor, #fff);
+      min-width: 160px;
+      flex: 0 0 auto;
+    }
+    .rgmMetricLabel {
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.05em;
+      color: var(--sapContent_LabelColor, #556b82) !important;
+      text-transform: uppercase;
+    }
+    .rgmMetricCount {
+      font-size: 2.5rem !important;
+      font-weight: 700 !important;
+      line-height: 1.1;
+      color: var(--sapTextColor, #1d2d3e) !important;
+      display: block;
+      margin: 0.15rem 0;
+    }
+    .rgmMetricSubtitle {
+      font-size: 0.8rem !important;
+      color: var(--sapContent_LabelColor, #556b82) !important;
+    }
+  </style>
   <script>
     function onUI5Init() {
     sap.ui.require([
@@ -93,9 +127,9 @@
       }
 
       /* ── Models ───────────────────────────────────────────────────────── */
-      const listModel    = new JSONModel({ orders: [], loading: false });
-      const detailModel  = new JSONModel({ order: null, expected: [], received: [], history: [], detailTab: "items" });
-      const bannerModel  = new JSONModel({ msg: "", type: "Information", visible: false });
+      const listModel   = new JSONModel({ orders: [], matched: [], ambiguous: [], unmatched: [] });
+      const detailModel = new JSONModel({ order: null, expected: [], received: [], history: [], detailTab: "items" });
+      const bannerModel = new JSONModel({ msg: "", type: "Information", visible: false });
 
       /* ── Banner helpers ───────────────────────────────────────────────── */
       let bannerTimer = null;
@@ -107,14 +141,21 @@
 
       /* ── Load worklist ───────────────────────────────────────────────── */
       async function loadList() {
-        listModel.setProperty("/loading", true);
         try {
           const d = await odata("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus");
-          listModel.setProperty("/orders", d.value);
+          const orders    = d.value;
+          const matched   = orders.filter(o => o.status_code === "MATCHED");
+          const ambiguous = orders.filter(o => o.status_code === "AMBIGUOUS");
+          const unmatched = orders.filter(o => o.status_code === "UNMATCHED");
+          listModel.setData({ orders, matched, ambiguous, unmatched });
+          matchedCountText.setText(String(matched.length));
+          ambiguousCountText.setText(String(ambiguous.length));
+          unmatchedCountText.setText(String(unmatched.length));
+          matchedTabFilter.setCount(String(matched.length));
+          ambiguousTabFilter.setCount(String(ambiguous.length));
+          unmatchedTabFilter.setCount(String(unmatched.length));
         } catch (e) {
           showBanner(e.message, "Error");
-        } finally {
-          listModel.setProperty("/loading", false);
         }
       }
 
@@ -271,54 +312,96 @@
       /* ══════════════════════════════════════════════════════════════════
          WORKLIST PAGE
       ══════════════════════════════════════════════════════════════════ */
-      const worklist = new MTable({
-        growing: true,
-        growingThreshold: 20,
-        mode: "SingleSelectMaster",
-        selectionChange: async (evt) => {
-          const item = evt.getParameter("listItem");
-          const ctx  = item.getBindingContext("list");
-          const id   = ctx.getProperty("ID");
-          await loadDetail(id);
-          app.to("detailPage");
-        },
-        columns: [
-          new Column({ header: new Label({ text: "External Order Ref" }), width: "16rem" }),
-          new Column({ header: new Label({ text: "Customer Ref" }),        width: "12rem" }),
-          new Column({ header: new Label({ text: "Received Date" }),       width: "10rem" }),
-          new Column({ header: new Label({ text: "Status" }),              width: "11rem" }),
-          new Column({ header: new Label({ text: "Signal Status" }),       width: "9rem"  }),
-        ],
-      });
 
-      worklist.setModel(listModel, "list");
-      worklist.bindItems({
-        model: "list",
-        path: "/orders",
-        template: new ColumnListItem({
-          cells: [
-            new MText({ text: "{list>externalOrderRef}" }),
-            new MText({ text: "{list>customerRef}" }),
-            new MText({ text: "{list>receivedDate}" }),
-            new ObjectStatus({
-              text:  { path: "list>status_code", formatter: statusText  },
-              state: { path: "list>status_code", formatter: statusState },
-            }),
-            new ObjectStatus({
-              text:  { path: "list>signalStatus", formatter: v => v || "—" },
-              state: { path: "list>signalStatus", formatter: signalState },
-            }),
+      /* ── Metric cards ── */
+      function makeMetricCard(labelText, subtitle) {
+        const countText = new MText({ text: "0" }).addStyleClass("rgmMetricCount");
+        const card = new VBox({
+          items: [
+            new MText({ text: labelText }).addStyleClass("rgmMetricLabel"),
+            countText,
+            new MText({ text: subtitle }).addStyleClass("rgmMetricSubtitle"),
           ],
-        }),
+        }).addStyleClass("rgmMetricCard");
+        return { card, countText };
+      }
+
+      const { card: matchedCard,   countText: matchedCountText   } = makeMetricCard("Matched",   "Ready for confirmation");
+      const { card: ambiguousCard, countText: ambiguousCountText } = makeMetricCard("Ambiguous", "Need review");
+      const { card: unmatchedCard, countText: unmatchedCountText } = makeMetricCard("Unmatched", "No match found");
+
+      const metricsRow = new HBox({
+        items: [matchedCard, ambiguousCard, unmatchedCard],
+      }).addStyleClass("rgmMetricsRow");
+
+      /* ── Tab table factory ── */
+      function makeOrderTable(modelPath) {
+        const table = new MTable({
+          growing: true,
+          growingThreshold: 20,
+          noDataText: "No orders",
+          mode: "SingleSelectMaster",
+          selectionChange: async (evt) => {
+            const item = evt.getParameter("listItem");
+            const ctx  = item.getBindingContext("list");
+            const id   = ctx.getProperty("ID");
+            await loadDetail(id);
+            app.to("detailPage");
+          },
+          columns: [
+            new Column({ header: new Label({ text: "External Order Ref" }), width: "16rem" }),
+            new Column({ header: new Label({ text: "Customer Ref" }),        width: "14rem" }),
+            new Column({ header: new Label({ text: "Received Date" }),       width: "10rem" }),
+            new Column({ header: new Label({ text: "Signal Status" }),       width: "9rem"  }),
+          ],
+        });
+        table.setModel(listModel, "list");
+        table.bindItems({
+          model: "list",
+          path:  modelPath,
+          template: new ColumnListItem({
+            cells: [
+              new MText({ text: "{list>externalOrderRef}" }),
+              new MText({ text: "{list>customerRef}" }),
+              new MText({ text: "{list>receivedDate}" }),
+              new ObjectStatus({
+                text:  { path: "list>signalStatus", formatter: v => v || "—" },
+                state: { path: "list>signalStatus", formatter: signalState },
+              }),
+            ],
+          }),
+        });
+        return table;
+      }
+
+      /* ── Tab filters ── */
+      const matchedTabFilter   = new IconTabFilter({ text: "Matched",   key: "matched",   count: "0" });
+      const ambiguousTabFilter = new IconTabFilter({ text: "Ambiguous", key: "ambiguous", count: "0" });
+      const unmatchedTabFilter = new IconTabFilter({ text: "Unmatched", key: "unmatched", count: "0" });
+
+      matchedTabFilter.addContent(makeOrderTable("/matched"));
+      ambiguousTabFilter.addContent(makeOrderTable("/ambiguous"));
+      unmatchedTabFilter.addContent(makeOrderTable("/unmatched"));
+
+      const listTabBar = new IconTabBar({
+        items: [matchedTabFilter, ambiguousTabFilter, unmatchedTabFilter],
       });
 
+      /* ── List page ── */
       const listPage = new Page({
         id: "listPage",
-        title: "Returned Goods Exception Management",
-        headerContent: [
-          new Button({ icon: "sap-icon://refresh", press: loadList }),
-        ],
-        content: [bannerStrip, worklist],
+        customHeader: new Bar({
+          contentLeft: [
+            new Title({ text: "Returned Goods Exception Management" }),
+          ],
+          contentRight: [
+            new Button({ text: "Regenerate Proposal", type: "Default",    press: () => showBanner("Regenerate Proposal is not yet implemented", "Information") }),
+            new Button({ text: "Post Confirmed Items", type: "Emphasized", press: () => showBanner("Post Confirmed Items is not yet implemented", "Information") }),
+            new Button({ text: "Reset Run",            type: "Reject",     press: () => showBanner("Reset Run is not yet implemented", "Information") }),
+            new Button({ icon: "sap-icon://refresh",   type: "Default",    press: loadList }),
+          ],
+        }),
+        content: [bannerStrip, metricsRow, listTabBar],
       });
 
       /* ══════════════════════════════════════════════════════════════════
@@ -326,16 +409,15 @@
       ══════════════════════════════════════════════════════════════════ */
 
       /* ── Action toolbar (bound dynamically) ── */
-      const confirmBtn    = new Button({ text: "Confirm",      type: "Emphasized",    press: () => callAction("confirm") });
-      const escalateBtn   = new Button({ text: "Escalate",     type: "Default",       press: () => { escalateReasonInput.setValue(""); escalateDialog.open(); } });
-      const resolveBtn    = new Button({ text: "Resolve",      type: "Emphasized",    press: () => { resolveReasonInput.setValue(""); resolveDialog.open(); } });
-      const rejectBtn     = new Button({ text: "Reject",       type: "Reject",        press: () => { rejectReasonInput.setValue(""); rejectDialog.open(); } });
-      const linkBtn       = new Button({ text: "Link Order",   type: "Default",       press: () => { linkOrderIdInput.setValue(""); linkReasonInput.setValue(""); linkDialog.open(); } });
-      const retryBtn      = new Button({ text: "Retry Signal", type: "Default",       press: () => callAction("retrySignal") });
+      const confirmBtn  = new Button({ text: "Confirm",      type: "Emphasized", press: () => callAction("confirm") });
+      const escalateBtn = new Button({ text: "Escalate",     type: "Default",    press: () => { escalateReasonInput.setValue(""); escalateDialog.open(); } });
+      const resolveBtn  = new Button({ text: "Resolve",      type: "Emphasized", press: () => { resolveReasonInput.setValue(""); resolveDialog.open(); } });
+      const rejectBtn   = new Button({ text: "Reject",       type: "Reject",     press: () => { rejectReasonInput.setValue(""); rejectDialog.open(); } });
+      const linkBtn     = new Button({ text: "Link Order",   type: "Default",    press: () => { linkOrderIdInput.setValue(""); linkReasonInput.setValue(""); linkDialog.open(); } });
+      const retryBtn    = new Button({ text: "Retry Signal", type: "Default",    press: () => callAction("retrySignal") });
 
-      /* Show/hide based on status */
       function refreshActionButtons() {
-        const order = detailModel.getProperty("/order");
+        const order  = detailModel.getProperty("/order");
         const status = order?.status_code;
         const signal = order?.signalStatus;
         confirmBtn .setVisible(status === "MATCHED");
@@ -378,12 +460,10 @@
         ],
       }).addStyleClass("sapUiSmallMarginBottom");
 
-      const statusDisplay = new ObjectStatus({
-        title: "Status",
-      });
+      const statusDisplay = new ObjectStatus({ title: "Status" });
       statusDisplay.setModel(detailModel, "detail");
-      statusDisplay.bindProperty("text",  { model: "detail", path: "/order/status_code",  formatter: statusText  });
-      statusDisplay.bindProperty("state", { model: "detail", path: "/order/status_code",  formatter: statusState });
+      statusDisplay.bindProperty("text",  { model: "detail", path: "/order/status_code", formatter: statusText  });
+      statusDisplay.bindProperty("state", { model: "detail", path: "/order/status_code", formatter: statusState });
 
       const signalDisplay = new ObjectStatus({ title: "Signal" });
       signalDisplay.setModel(detailModel, "detail");
@@ -400,10 +480,10 @@
       const expectedTable = new MTable({
         headerText: "Expected Items",
         columns: [
-          new Column({ header: new Label({ text: "Material ID" }),    width: "9rem"  }),
-          new Column({ header: new Label({ text: "Description" }),    width: "auto"  }),
-          new Column({ header: new Label({ text: "Qty" }),            width: "6rem", hAlign: "End" }),
-          new Column({ header: new Label({ text: "Unit" }),           width: "5rem"  }),
+          new Column({ header: new Label({ text: "Material ID" }),   width: "9rem"  }),
+          new Column({ header: new Label({ text: "Description" }),   width: "auto"  }),
+          new Column({ header: new Label({ text: "Qty" }),           width: "6rem", hAlign: "End" }),
+          new Column({ header: new Label({ text: "Unit" }),          width: "5rem"  }),
         ],
       });
       expectedTable.setModel(detailModel, "detail");
@@ -423,11 +503,11 @@
       const receivedTable = new MTable({
         headerText: "Received Items",
         columns: [
-          new Column({ header: new Label({ text: "Material ID" }),    width: "9rem"  }),
-          new Column({ header: new Label({ text: "Description" }),    width: "auto"  }),
-          new Column({ header: new Label({ text: "Qty" }),            width: "6rem", hAlign: "End" }),
-          new Column({ header: new Label({ text: "Unit" }),           width: "5rem"  }),
-          new Column({ header: new Label({ text: "Condition" }),      width: "8rem"  }),
+          new Column({ header: new Label({ text: "Material ID" }),   width: "9rem"  }),
+          new Column({ header: new Label({ text: "Description" }),   width: "auto"  }),
+          new Column({ header: new Label({ text: "Qty" }),           width: "6rem", hAlign: "End" }),
+          new Column({ header: new Label({ text: "Unit" }),          width: "5rem"  }),
+          new Column({ header: new Label({ text: "Condition" }),     width: "8rem"  }),
         ],
       });
       receivedTable.setModel(detailModel, "detail");
@@ -448,10 +528,10 @@
       const historyTable = new MTable({
         headerText: "Audit History",
         columns: [
-          new Column({ header: new Label({ text: "Timestamp" }),  width: "14rem" }),
-          new Column({ header: new Label({ text: "User" }),        width: "14rem" }),
-          new Column({ header: new Label({ text: "Action" }),      width: "12rem" }),
-          new Column({ header: new Label({ text: "Reason" }),      width: "auto"  }),
+          new Column({ header: new Label({ text: "Timestamp" }), width: "14rem" }),
+          new Column({ header: new Label({ text: "User" }),       width: "14rem" }),
+          new Column({ header: new Label({ text: "Action" }),     width: "12rem" }),
+          new Column({ header: new Label({ text: "Reason" }),     width: "auto"  }),
         ],
       });
       historyTable.setModel(detailModel, "detail");
@@ -467,7 +547,7 @@
         }),
       });
 
-      /* ── IconTabBar ── */
+      /* ── Detail IconTabBar ── */
       const tabBar = new IconTabBar({
         items: [
           new IconTabFilter({ text: "Items",   key: "items",   content: [
