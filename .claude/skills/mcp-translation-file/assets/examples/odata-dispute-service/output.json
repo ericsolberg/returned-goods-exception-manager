@@ -1,0 +1,81 @@
+{
+  "mcpTranslationVersion": "0.1",
+  "target": {
+    "ordId": "sap.s4:apiResource:dispute-service:v1",
+    "type": "edmx"
+  },
+  "serverInfo": {
+    "name": "com.sap.s4/dispute-service",
+    "title": "SAP S/4HANA Dispute Service MCP Server",
+    "version": "1.0.0",
+    "description": "MCP server for managing disputes in SAP S/4HANA via the Dispute Service OData API"
+  },
+  "tools": [
+    {
+      "name": "list_disputes",
+      "title": "List Disputes",
+      "description": "Retrieve disputes from SAP S/4HANA. Use filter for queries and select to choose specific fields.",
+      "odataType": {
+        "entitySet": {
+          "name": "DisputeService.EntityContainer.Disputes",
+          "crudOperation": "read",
+          "parameters": [
+            {
+              "name": "filter",
+              "description": "OData filter expression. Example: ID eq '1000000' or Subject eq 'important'."
+            },
+            {
+              "name": "select",
+              "description": "Comma-separated list of fields (without spaces) to return."
+            },
+            {
+              "name": "top",
+              "description": "Maximum number of records to return. Use for pagination."
+            },
+            {
+              "name": "skip",
+              "description": "Number of records to skip. Use for pagination."
+            },
+            {
+              "name": "orderby",
+              "description": "Field(s) to sort by. Example: LastName asc or BusinessPartner desc."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "create_dispute",
+      "title": "Create Dispute",
+      "description": "Create a new dispute case in SAP S/4HANA. Provide the required fields and optional attributes.",
+      "odataType": {
+        "entitySet": {
+          "name": "DisputeService.EntityContainer.Disputes",
+          "crudOperation": "create"
+        }
+      }
+    },
+    {
+      "name": "update_dispute",
+      "title": "Update Dispute",
+      "description": "Update an existing dispute case in SAP S/4HANA by providing the dispute ID and the fields to change.",
+      "odataType": {
+        "entitySet": {
+          "name": "DisputeService.EntityContainer.Disputes",
+          "crudOperation": "update"
+        }
+      }
+    },
+    {
+      "name": "delete_dispute",
+      "title": "Delete Dispute",
+      "description": "Delete a dispute case in SAP S/4HANA.",
+      "odataType": {
+        "entitySet": {
+          "name": "DisputeService.EntityContainer.Disputes",
+          "crudOperation": "delete"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{ServiceName}</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f5f6fa; color: #222; }
+    .app { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+
+    /* Top bar */
+    .topbar { background: #1a73e8; color: #fff; padding: .75rem 1rem; border-radius: 8px 8px 0 0; font-size: 1.1rem; font-weight: 600; }
+
+    /* Tab navigation */
+    .tabs { display: flex; gap: 2px; background: #e0e0e0; border-radius: 0 0 8px 8px; overflow: hidden; }
+    .tabs button { flex: 1; padding: .5rem; border: none; background: #fff; cursor: pointer; font-size: .85rem; }
+    .tabs button.active { background: #1a73e8; color: #fff; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .85rem; }
+    th, td { border: 1px solid #ddd; padding: .4rem .6rem; text-align: left; }
+    th { background: #f0f0f0; font-weight: 600; }
+    tr:nth-child(even) { background: #fafafa; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* Buttons */
+    .btn { padding: .3rem .7rem; border: none; border-radius: 12px; cursor: pointer; font-size: .78rem; }
+    .btn-neutral { background: #e0e0e0; color: #333; }
+    .btn-green  { background: #34a853; color: #fff; }
+    .btn-red    { background: #ea4335; color: #fff; }
+    .btn-blue   { background: #1a73e8; color: #fff; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 8px; font-size: .75rem; font-weight: 600; }
+    .badge-green  { background: #e6f4ea; color: #1e7e34; }
+    .badge-red    { background: #fce8e6; color: #c5221f; }
+    .badge-amber  { background: #fef7e0; color: #e37400; }
+    .badge-grey   { background: #f1f3f4; color: #5f6368; }
+
+    /* Banner */
+    .banner { padding: .5rem 1rem; border-radius: 6px; margin: .5rem 0; font-size: .85rem; }
+    .banner-ok  { background: #e6f4ea; color: #1e7e34; }
+    .banner-err { background: #fce8e6; color: #c5221f; }
+
+    /* Modal */
+    dialog { border: none; border-radius: 10px; padding: 1.5rem; min-width: 320px; }
+    dialog::backdrop { background: rgba(0,0,0,.35); }
+    dialog label { display: block; margin-top: .6rem; font-size: .85rem; }
+    dialog input { width: 100%; padding: .35rem; margin-top: .2rem; border: 1px solid #ccc; border-radius: 4px; }
+    dialog .actions { display: flex; gap: .5rem; margin-top: 1rem; justify-content: flex-end; }
+
+    .toolbar { display: flex; gap: .5rem; align-items: center; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const BASE = "{ODataBasePath}";
+
+    /* --- OData helpers --------------------------------------------------- */
+    async function odata(path, opts = {}) {
+      const res = await fetch(BASE + path, {
+        ...opts,
+        headers: { "Content-Type": "application/json", ...opts.headers },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || res.statusText);
+      }
+      return res.status === 204 ? null : res.json();
+    }
+
+    /* GET list:     odata('/Entity?$top=100')                              */
+    /* GET by key:   odata('/Entity(key)')                                  */
+    /* POST create:  odata('/Entity', { method:'POST', body: JSON.stringify(data) }) */
+    /* POST action:  odata('/Entity(key)/ActionName', { method:'POST', body: JSON.stringify(params) }) */
+    /* PATCH update: odata('/Entity(key)', { method:'PATCH', body: JSON.stringify(data) }) */
+    /* DELETE:       odata('/Entity(key)', { method:'DELETE' })              */
+
+    /* --- Generate one component per entity below ------------------------- */
+
+    /* {EntityComponents} */
+
+    /* --- Top-level App with tab navigation ------------------------------- */
+
+    /* {AppComponent} */
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

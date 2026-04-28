@@ -1,0 +1,152 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Python 3.13 and guidelines given in the sap-agent-bootstrap skill
+
+  Purpose: Build a fully working Pro-Code AI Agent per product-requirements-document.md requirements.
+
+  Key constraints:
+  - You MUST follow the guidelines in the sap-agent-bootstrap skill
+  - Follow the instructions in the sap-agent-bootstrap skill to set up the project structure. The bootstrap skill operates on the current working directory (`assets/<asset-name>/`). Invoke the bootstrap skill directly from there. Use the copy commands, DO NOT create the files manually.
+  - You MUST use the agent framework defined in the sap-agent-bootstrap skill
+  - Local execution only (in-memory storage, no deployment)
+  - Only use public APIs, mock any private systems (like S/4HANA). Use minimal mock data.
+  - Exception: AI Core is fully available at runtime via LiteLLM (environment variables provided)
+  - No Git operations, no authentication, no documentation/READMEs
+  - Update requirements.txt for any new dependencies
+  - Never modify sys.path
+  - Map SAP Joule Studio/Skills concepts to standard agent tools
+
+  Agent extensibility:
+  - Agents are extensible by default and designed to work with the Agent Extension pattern
+  - The sap-agent-extensibility skill MUST be invoked AND completed during implementation
+  - Extensibility is NOT optional - it must be fully implemented with code, not just documented
+  - Extension points must be identified for all major business logic components (preprocessors, strategies, evaluators, routers, etc.)
+  - Each extension point must have a proper interface/protocol and registration mechanism
+  - CRITICAL:"Invoke sap-agent-extensibility" means load the skill AND complete its entire workflow, including:
+    * Identifying extension points
+    * Creating extension interfaces/protocols
+    * Implementing registration mechanisms
+    * Adding telemetry wrappers for extensions
+    * Verifying extensions work with sample implementations
+  - Never mark extensibility tasks complete until extension_capabilities.py (or equivalent) exists in the code
+
+  Agent instrumentation:
+  - ALL business logic steps MUST be instrumented with proper logging and OpenTelemetry spans
+  - Use the milestones defined in the PRD's "Milestones" section to implement business step instrumentation
+  - Each milestone must emit structured log statements on achievement and miss
+  - Log pattern: [MILESTONE_ID].[achieved|missed]: [description]
+  - Add OpenTelemetry custom spans for each business step to enable distributed tracing
+  - Ensure auto_instrument() is called at the top of main.py before any AI framework imports
+
+  Code quality:
+  - All Python code must compile with valid imports
+  - No src. import patterns
+  - All function parameters must be used in function body
+
+  Fast Track Mode:
+  - Skip questions in this mode, NOT verification of implementation
+
+  
+  Testing:
+  - The working directory for all test operations is `assets/<asset-name>/` (the asset root).
+  - Before writing any tests, you must follow these steps:
+    - Copy the boilerplate test files into the asset root (cwd): `cp -r /path/to/skills/prd-to-spec/assets/agent_tests/. .`
+    - The boilerplate test files are named with a .template suffix — make sure to remove it after copying `for file in /assets/<asset-name>/**/*.template; do [ -f "$file" ] && mv "$file" "${file%.template}"; done`
+    - Install test dependencies: `pip install -r requirements-test.txt`
+  - The boilerplate test files include:
+    - `conftest.py` — pytest plugin that provides shared fixtures (agent path), registers custom markers (must only be used by tests inside the prebuilt_tests/ module), collects per-test results, and always writes `test_report.json` automatically when all tests are run (this is omitted when only selected tests are run)
+    - `pytest.ini` — configures test discovery (`prebuilt_tests/`, `tests/`), default flags, and markers
+    - `requirements-test.txt` — test dependencies (pytest, pytest-cov, pytest-json-report, pytest-timeout, pyyaml, httpx, ruff)
+    - `prebuilt_tests/` — pre-built tests for file/module structure (`test_structure.py`); NEVER modify these files
+  - Generated tests complement the boilerplate — the structure tests are already provided; you only write the functional tests:
+    - Location: ALL generated tests MUST be placed in a `tests/` module at the asset root (`tests/`, relative to `assets/<asset-name>/`), NOT inside `app/`
+    - Unit tests: write exactly one unit test per tool; run each test immediately after writing it
+    - Integration test: write one integration test that executes an end-to-end agent flow using the real LLM
+    - AI Core environment variables are always present in the environment, so you can use the real LLM class in all tests; however, you MUST mock any private/external non-AI systems (e.g. S/4HANA). Include this information in the `tasks.md` such that the coding agent knows it can also invoke the real LLM in tests.
+  - Running pytest: ALWAYS invoke pytest as just `pytest` from the asset root for full runs — never pass paths, `--cov`, `--json-report`, or any other flags manually; `pytest.ini` configures all of this automatically and adding flags on the command line will conflict with or duplicate the ini settings; the only valid exception is targeting a single test: `pytest path/to/test_file.py::test_name`. Integrate this information into the `tasks.md` such that it is preserved.
+  - Coverage: after all tests are written, run `pytest`; if coverage is below 70%, add targeted tests until the threshold is met — never consider testing complete until it passes
+  - Make sure to run `pytest` again after finishing all development to ensure `test_report.json` contains the latest results. You MUST run pytest on all files without arguments such that the test report file is created.
+  
+  Validation:
+  - Fix validation failures immediately before proceeding
+  - Validate that the project structure matches the guidelines in the sap-agent-bootstrap skill
+  - The asset root is assets/<asset-name>/. Required structure inside it: asset.yaml, Dockerfile, app/
+  - From the project root the full layout is: solution.yaml, assets/<asset-name>/asset.yaml, assets/<asset-name>/Dockerfile, assets/<asset-name>/app/
+  - The Dockerfile MUST be inside assets/<asset-name>/ (co-located with asset.yaml)
+  - asset.yaml must use buildPath: . and /.well-known/agent.json for all health probes
+  - Run grep commands to verify instrumentation: grep -r "M[0-9]\.achieved" assets/<asset-name>/app/ must return results
+  - Verify extensibility: grep -r "extension_capabilities\|ExtensionPoint\|register_extension" assets/<asset-name>/app/ must return results
+  - Check that extension-related files exist: ls assets/<asset-name>/app/extension_capabilities.py (or equivalent) must succeed
+  - Coverage: after all tests are written, run `pytest`; if coverage is below 70%, add targeted tests until the threshold is met
+  - CRITICAL: If sap-agent-extensibility skill was invoked, verify it was COMPLETED by checking for extension code in the repository
+  - The completion checklist in spec-to-code SKILL.md is MANDATORY - verify every checkbox before claiming completion
+
+  MCP tool integration (only when translation files exist in `openspec/changes/<change-id>/mcps/`):
+  - gatewaySDK.py will be placed in app/ — import as: from gatewaySDK import MCP
+  - Add langchain-mcp-adapters==0.2.1 to requirements.txt
+  - Use MultiServerMCPClient from langchain_mcp_adapters.client to load tools from MCP URLs
+  - Build one MCP server entry per distinct ORD ID identified during API discovery (see design.md API References section)
+  - Dual mode during tests ("pytest" in sys.modules) use in-memory @lc_tool mocks;
+    otherwise load real MCP tools via gatewaySDK — canonical pattern:
+        import sys
+        import asyncio
+
+        from gatewaySDK import MCP
+        from langchain_mcp_adapters.client import MultiServerMCPClient
+
+        class MyClass:
+            def __init__(self):
+                self.client = None
+                self.tools = None
+
+            async def init(self):
+                if "pytest" in sys.modules:
+                    self.tools = MOCK_TOOLS
+                    return
+
+                self.client = MultiServerMCPClient({
+                    "<server-name>": {
+                        "url": MCP.get_url("<ord-id>"),
+                        "transport": "streamable_http",
+                    },
+                })
+
+                await self.client.__aenter__()
+                self.tools = self.client.get_tools()
+
+            async def close(self):
+                if self.client:
+                    await self.client.__aexit__(None, None, None)
+
+
+rules:
+  proposal:
+    - You MUST read the sap-agent-bootstrap skill before creating the proposal to understand the patterns and framework for the agent
+    - Ensure all tasks align with sap-agent-bootstrap patterns
+    - Only create tasks fulfillable by the agent (no human tasks)
+
+  tasks:
+    - First task MUST be to re-read product-requirements-document.md
+    - Second task MUST be to invoke the sap-agent-bootstrap skill from `assets/<asset-name>/` (this directory already exists, created by prd-to-spec setup) to set up the project structure
+    - All tasks must be agent-executable (no human intervention)
+    - During openspec-apply-change, implement ALL tasks from tasks.md
+    - Periodically review tasks.md to ensure complete coverage
+    - Never stop after partial implementation—complete all functionality
+    - REQUIRED:Include a task to invoke AND COMPLETE the sap-agent-extensibility skill to add extension points
+    - REQUIRED:The extensibility task must specify which components need extension points (e.g., preprocessors, strategies, evaluators, routers)
+    - REQUIRED:Verify extension_capabilities.py (or equivalent) exists in the code before marking extensibility tasks complete
+    - REQUIRED:Include a task to implement business step instrumentation based on the milestones defined in product-requirements-document.md
+    - Verify that every milestone from product-requirements-document.md has corresponding log statements
+    - REQUIRED:For each milestone in the PRD, add structured logging with the pattern `[MILESTONE_ID].[achieved|missed]:[description]`
+    - REQUIRED:Include a task to add OpenTelemetry custom spans for each business step (wrap business logic methods with @tracer.start_as_current_span decorators)
+    - REQUIRED:Verify that auto_instrument() is called at the top of main.py before any AI framework imports (as per sap-agent-bootstrap deployment gotchas)
+    - Before marking any task complete, verify the implementation exists in the codebase.
+    - Never mark a task complete based on intent - only mark complete after verifying the actual implementation
+    - You MUST include a task to set up the test infrastructure; copy the boilerplate test files into the asset directory, install test dependencies and create the `tests/` module in the asset root
+    - You MUST include a final task to run `pytest` from `assets/<asset-name>/` (without any pytest args) to execute the full test suite and generate the final test report. Remember that the test report is only generated when all tests are run at once without arguments (as per `conftest.py` and `pytest.ini`), so enforce this fact in the `tasks.md`.
+    - After this final pytest task, you MUST include a task to make sure that the `test_report.json` is generated. If it has not been generated, run pytest again until it is. The presence of `test_report.json` is a requirement for completion.
+    - If at least one translation file exists in `openspec/changes/<change-id>/mcps/`, include a task to copy `gatewaySDK.py` from the workspace root into `assets/<asset-name>/app/`
+    - If at least one translation file exists in `openspec/changes/<change-id>/mcps/`, include a task to add `langchain-mcp-adapters` to `requirements.txt`
+    - If at least one translation file exists in `openspec/changes/<change-id>/mcps/`, include a task to wire dual-mode tool loading in `agent.py`, using ORD IDs from the API discovery results in `design.md`. MCP via gatewaySDK in production, `@lc_tool` mocks when `pytest` in `sys.modules`
+    - REQUIRED:Include a final task to invoke the `setup-solution` skill to create the full solution structure (`solution.yaml`, agent asset, and any MCP server assets, as needed). This task must be the last task in the implementation phase.

@@ -1,0 +1,69 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Business Partner API",
+    "description": "SAP S/4HANA Business Partner OpenAPI v3 service.",
+    "version": "1.0.0"
+  },
+  "x-ord-id": "sap.s4:apiResource:business-partner-api:v1",
+  "paths": {
+    "/BusinessPartner": {
+      "get": {
+        "operationId": "listBusinessPartners",
+        "summary": "List Business Partners",
+        "description": "Retrieve a list of business partners.",
+        "parameters": [
+          { "name": "$filter", "in": "query", "description": "OData-style filter expression" },
+          { "name": "$top", "in": "query", "description": "Maximum number of records to return" },
+          { "name": "$skip", "in": "query", "description": "Number of records to skip" },
+          {
+            "name": "X-Correlation-ID",
+            "in": "header",
+            "description": "Internal correlation header"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createBusinessPartner",
+        "summary": "Create Business Partner",
+        "description": "Create a new business partner record.",
+        "requestBody": {
+          "content": { "application/json": {} },
+          "required": true
+        }
+      }
+    },
+    "/BusinessPartner/{BusinessPartner}": {
+      "get": {
+        "operationId": "getBusinessPartner",
+        "summary": "Get Business Partner",
+        "description": "Retrieve a single business partner by their unique ID.",
+        "parameters": [
+          {
+            "name": "BusinessPartner",
+            "in": "path",
+            "required": true,
+            "description": "Business partner ID"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "updateBusinessPartner",
+        "summary": "Update Business Partner",
+        "description": "Update fields of an existing business partner by ID.",
+        "parameters": [
+          {
+            "name": "BusinessPartner",
+            "in": "path",
+            "required": true,
+            "description": "Business partner ID"
+          }
+        ],
+        "requestBody": {
+          "content": { "application/json": {} },
+          "required": true
+        }
+      }
+    }
+  }
+}

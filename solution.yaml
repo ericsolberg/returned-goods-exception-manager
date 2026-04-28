@@ -1,0 +1,10 @@
+apiVersion: solution.sap/v1
+kind: Solution
+
+metadata:
+  name: returned-goods-manager
+  version: 1.0.0
+  description: Returned goods exception management — CAP service with React UI for reviewing and resolving return order discrepancies
+
+assets:
+  - ref: ./assets/returned-goods-exception-management-cap/asset.yaml

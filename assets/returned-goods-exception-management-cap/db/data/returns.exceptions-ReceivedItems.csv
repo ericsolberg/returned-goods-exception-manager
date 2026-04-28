@@ -1,0 +1,5 @@
+ID,order_ID,materialId,materialDescription,receivedQty,unit,condition
+17872936-b00d-4a37-870a-e895cc89abce,43222416-5b0a-431f-9ad9-e8b81e8d535a,MAT-001,Industrial Pump Assembly,2.000,EA,Good
+17872937-0b57-4926-982d-b439a9ff0cf0,43222427-cacf-4dc9-b9ff-847e99fc2baa,MAT-004,Control Panel Unit,1.000,EA,Damaged
+17872938-1111-4abc-8888-aabbccddeeff,43222432-0cff-431a-8d29-f4b555d40fb1,MAT-007,Hydraulic Valve Set,3.000,EA,Good
+17872939-2222-4def-9999-112233445566,43222445-57ac-48a5-b19e-462c7a9c2aeb,MAT-012,Pressure Sensor,4.000,EA,Good

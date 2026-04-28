@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "mcp__ibd__*",
+      "mcp__n8n__*",
+      "mcp__cds-mcp__*",
+      "Bash(node /Users/I809433/Projects/ibd/returned-goods-manager/.claude/skills/prd-to-spec/scripts/setup.mjs cap)",
+      "Bash(openspec list:*)",
+      "Bash(openspec validate:*)",
+      "Bash(openspec instructions:*)",
+      "Bash(cds init:*)",
+      "Bash(npm add:*)",
+      "Bash(npm pkg:*)",
+      "Bash(cds compile:*)",
+      "Bash(cds add:*)",
+      "Bash(npx jest:*)",
+      "Bash(cds watch:*)",
+      "Bash(echo \"PID=$!\")",
+      "Bash(curl:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['value'][0]['ID'] if d.get\\('value'\\) else 'not found'\\)\")",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(python3 -c \"import sys,json; p=json.load\\(sys.stdin\\); print\\(p.get\\('dependencies',{}\\).get\\('@sap/xssec','NOT FOUND'\\)\\)\")",
+      "Bash(node -e \"require\\('@sap/approuter'\\)\")",
+      "Bash(npm show:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('definitions',{}\\).keys\\(\\)\\)[:20]\\)\")",
+      "Bash(node -e \"const cds = require\\('@sap/cds'\\); console.log\\(cds.version\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(NODE_ENV=production node:*)",
+      "Bash(mbt build:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "ibd",
+    "n8n",
+    "cds-mcp"
+  ]
+}

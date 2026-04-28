@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Base Agent",
+  "description": "Schema for a base agent that can be extended via agent extensions",
+  "type": "object",
+  "required": ["ordId", "title", "version", "description", "capabilities"],
+  "properties": {
+    "ordId": {
+      "type": "string",
+      "description": "Id of the base agent",
+      "format": "uuid"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the base agent"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the base agent"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the base agent"
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Capabilities provided by the base agent",
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "description": "List of extension capabilities",
+          "items": {
+            "type": "object",
+            "required": ["uri"],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Description of the extension capability"
+              },
+              "params": {
+                "type": "object",
+                "properties": {
+                  "capabilityId": {
+                    "type": "string",
+                    "description": "Identifier for the capability"
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "description": "Display name of the capability"
+                  },
+                  "instructionSupported": {
+                    "type": "boolean",
+                    "description": "Whether the capability supports custom instructions"
+                  },
+                  "tools": {
+                    "type": "object",
+                    "description": "Tool configuration for the capability",
+                    "properties": {
+                      "additions": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean",
+                            "description": "Whether tool additions are enabled"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "supportedHooks": {
+                    "type": "array",
+                    "description": "Hooks supported by this capability",
+                    "items": {
+                      "type": "object",
+                      "required": ["id", "type"],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier for the hook"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": ["BEFORE", "AFTER"],
+                          "description": "Whether the hook runs before or after processing"
+                        },
+                        "displayName": {
+                          "type": "string",
+                          "description": "Display name of the hook"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Description of the hook"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": {
+                "type": "boolean",
+                "description": "Whether this extension capability is required"
+              },
+              "uri": {
+                "type": "string",
+                "description": "URN identifying the extension capability"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

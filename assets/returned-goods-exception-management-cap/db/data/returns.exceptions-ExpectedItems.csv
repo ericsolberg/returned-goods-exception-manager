@@ -1,0 +1,4 @@
+ID,order_ID,materialId,materialDescription,expectedQty,unit
+5292152d-0b76-4b9b-95d6-0a60c7931820,43222416-5b0a-431f-9ad9-e8b81e8d535a,MAT-001,Industrial Pump Assembly,2.000,EA
+5292153f-c701-4ad8-a356-34b09ac4c78c,43222427-cacf-4dc9-b9ff-847e99fc2baa,MAT-004,Control Panel Unit,1.000,EA
+5292154a-1234-4abc-b567-890def123456,43222432-0cff-431a-8d29-f4b555d40fb1,MAT-007,Hydraulic Valve Set,5.000,EA

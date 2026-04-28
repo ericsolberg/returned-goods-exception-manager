@@ -1,0 +1,28 @@
+{
+  "requires": {
+    "postingAgent": {
+      "url": "http://localhost:5005/signal"
+    }
+  },
+  "[development]": {
+    "requires": {
+      "postingAgent": {
+        "url": "http://localhost:5005/signal"
+      }
+    }
+  },
+  "[production]": {
+    "auth": "xsuaa",
+    "features": {
+      "in_memory_db": true
+    },
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": ":memory:"
+        }
+      }
+    }
+  }
+}

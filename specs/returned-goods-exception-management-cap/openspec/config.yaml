@@ -1,0 +1,84 @@
+schema: spec-driven
+
+context: |
+  Tech stack: CAP (Cloud Application Programming Model) — Node.js runtime, with a frontend
+  Purpose: Build a fully working BTP side-by-side extension per product-requirements-document.md
+
+  MCP servers (MUST use):
+  - cds-mcp — search CAP documentation before guessing at APIs or annotations;
+    read the effective CDS model before adding or changing anything.
+    Never use cds-mcp as Fiori/SAPUI5 documentation.
+
+  Key constraints:
+  - You MUST follow the guidelines in the cap-development skill for all CAP development
+  - Local execution only (no BTP deployment in this stage)
+  - Only use public APIs, mock any private systems (like S/4HANA)
+  - Use minimal mock data for unavailable systems
+  - No Git operations, no authentication, no documentation/READMEs
+  - No .env files (environment variables supplied at runtime)
+
+  Project structure:
+  - CAP project lives in `assets/<project_name>/`
+  - Frontend app lives in `assets/<project_name>/app/`
+  - The cap-development skill handles project init, modeling, testing, and frontend scaffolding
+  - Ensure `asset.yaml` exists in the project directory with the following content
+    (replace {{placeholder-id}} and {{application-name}} with actual values):
+      apiVersion: asset.sap/v1
+      kind: Asset
+      type: base-ui
+      metadata:
+        id: {{placeholder-id}}
+        name: {{application-name}}
+      probes:
+        startup:
+          path: /health
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 18
+        liveness:
+          path: /health
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readiness:
+          path: /health
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      container:
+        buildPath: gen/srv
+        port: 4004
+        env:
+          PORT: "4004"
+
+  CAP development:
+  - You MUST follow the cap-development skill for all modeling, handlers, data, testing, and frontend
+  - Read the skill before writing any tasks to ensure correct patterns
+
+  Testing:
+  - CRITICAL: never skip testing after adding custom handler logic
+  - Only test custom logic — never test generic CRUD
+  - Follow testing guidelines in the cap-development skill (references/write-tests.md)
+
+  Validation:
+  - Run `cds compile srv/` regularly to validate CDS models compile without errors
+  - Run `cds watch` and curl endpoints to confirm the service starts and responds
+  - Write tests for custom handler logic as instructed in the cap-development skill
+  - All source code must compile, all imports must resolve
+  - Fix validation failures immediately before proceeding
+
+rules:
+  proposal:
+    - You MUST read the cap-development skill before creating the proposal
+    - Ensure all tasks align with the cap-development skill patterns
+
+  tasks:
+    - First task MUST be to re-read product-requirements-document.md
+    - Second task MUST be to create `assets/<project_name>/` and invoke the cap-development skill from that directory to set up the project structure
+    - All tasks must be agent-executable (no human intervention)
+    - During openspec-apply-change, implement ALL tasks from tasks.md
+    - Never stop after partial implementation—complete all functionality
+    - Implement all backend functionality from PRD also in the UI
+    - Include final validation task (cds compile, cds watch, curl endpoints, run tests)

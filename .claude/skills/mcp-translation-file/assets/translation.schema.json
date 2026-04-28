@@ -1,0 +1,488 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sap.github.io/open-resource-discovery-specification/spec-extension/models/McpTranslation.schema.json#",
+  "title": "MCP Translation",
+  "description": "\u26a0\ufe0f ALPHA: This specification is in alpha and subject to change.\n\nThe MCP Translation is an optional ORD model extension.\n\nIt provides guidelines and metadata for translating existing REST or OData APIs\ninto Model Context Protocol (MCP) Servers, enabling AI agents to interact with\nthese APIs through a standardized interface.\n\nMCP Servers expose tools, prompts, and resources that AI assistants can use.\nThis extension helps API providers document how their existing APIs can be\nexposed as MCP tools, making them accessible to AI agents like Claude.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference",
+      "description": "Optional [URL](https://tools.ietf.org/html/rfc3986) to the MCP Translation schema (defined as a JSON Schema).\nIf provided, this enables code intelligence and validation in supported editors (like VSCode) and tools.",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        {
+          "const": "https://sap.github.io/open-resource-discovery-specification/spec-extension/models/McpTranslation.schema.json#"
+        }
+      ]
+    },
+    "mcpTranslationVersion": {
+      "type": "string",
+      "description": "Version of the MCP Translation specification.",
+      "enum": ["0.1"],
+      "examples": ["0.1"]
+    },
+    "target": {
+      "$ref": "#/definitions/McpTranslationTarget",
+      "description": "Identifies this MCP Translation document and the ORD API Resource it translates.\n\nRequired when any tools are specified. This constraint is validated at runtime."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional description of the MCP translation document itself.\n\nNotated in [CommonMark](https://spec.commonmark.org/) (Markdown).",
+      "examples": [
+        "This MCP translation provides guidance for exposing the Business Partner API\nas an MCP server for AI agent consumption.\n"
+      ]
+    },
+    "serverInfo": {
+      "$ref": "#/definitions/McpTranslationServerInfo",
+      "description": "Basic information about the MCP server."
+    },
+    "tools": {
+      "type": "array",
+      "description": "Array of MCP tools to be generated.",
+      "items": {
+        "$ref": "#/definitions/McpTranslationToolDefinition"
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Array of MCP prompts to be exposed.",
+      "items": {
+        "$ref": "#/definitions/McpTranslationPromptDefinition"
+      }
+    }
+  },
+  "required": ["mcpTranslationVersion", "serverInfo"],
+  "additionalProperties": false,
+  "definitions": {
+    "McpTranslationTarget": {
+      "type": "object",
+      "title": "Target",
+      "description": "Identifies the target API Resource that gets translated.",
+      "required": ["ordId", "type"],
+      "properties": {
+        "ordId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9._-]+:apiResource:[a-zA-Z0-9._\\-]+(:[a-zA-Z0-9._\\-]+)*$",
+          "description": "ORD ID of the ORD API Resource that this MCP Translation is based on.\nLinks the translation document back to the source API in the ORD catalog.",
+          "examples": ["sap.s4:apiResource:dispute-service:v1"]
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the API Resource Definition that this translation is based on.\nMust match one of the API Resource Definition types available for the referenced API Resource.",
+          "enum": ["edmx", "openapi-v3"],
+          "examples": ["edmx", "openapi-v3"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationServerInfo": {
+      "type": "object",
+      "title": "Server Info",
+      "description": "Basic information about the MCP server.",
+      "required": ["name", "version", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Technical server name used as identifier.\nServer name in reverse-DNS format. MUST contain exactly one forward slash separating namespace from server name.",
+          "examples": ["io.github.user/weather"],
+          "pattern": "^[a-zA-Z0-9.-]+/[a-zA-Z0-9._-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Display title for the MCP server.",
+          "examples": ["Business Partner MCP Server"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the MCP server (supports semantic versioning with optional pre-release).",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.-]+)?(\\+[a-zA-Z0-9.-]+)?$",
+          "examples": ["1.0.0"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the MCP server functionality.",
+          "examples": ["MCP server for managing business partners in SAP S/4HANA"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationToolDefinition": {
+      "type": "object",
+      "title": "Tool Definition",
+      "description": "Definition of an MCP tool, including its mapping to an OData or OpenAPI operation.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique name for the MCP tool in snake_case format (lowercase letters, numbers, and underscores only).",
+          "examples": ["get_business_partner", "create_business_partner"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Display title for the tool.",
+          "examples": ["Get Business Partner"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the tool does.",
+          "examples": ["Retrieve business partner information by ID"]
+        },
+        "odataType": {
+          "$ref": "#/definitions/McpTranslationODataType"
+        },
+        "openApiType": {
+          "$ref": "#/definitions/McpTranslationOpenApiType"
+        },
+        "annotations": {
+          "$ref": "#/definitions/McpTranslationAnnotations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationODataType": {
+      "type": "object",
+      "title": "OData Type",
+      "description": "OData-specific type definition for the tool. Defines which OData endpoint will be invoked when calling the tool.\nMust define either entitySet OR operation OR metadataRequest (not a combination of the three).",
+      "properties": {
+        "entitySet": {
+          "$ref": "#/definitions/McpTranslationODataEntitySet"
+        },
+        "operation": {
+          "$ref": "#/definitions/McpTranslationODataOperation",
+          "description": "OData unbound action or function"
+        },
+        "metadataRequest": {
+          "$ref": "#/definitions/McpTranslationODataMetadataRequest"
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationODataMetadataRequest": {
+      "type": "object",
+      "title": "OData Metadata Request",
+      "description": "Specifies that the MCP tool exposes functionality to fetch metadata about EntityTypes of that API. \nThis tool will return a subset of the OData $metadata endpoint to provide more context to the MCP client.",
+      "additionalProperties": false
+    },
+    "McpTranslationODataEntitySet": {
+      "type": "object",
+      "title": "OData Entity Set",
+      "description": "Reference to an OData EntitySet (a named collection of entities).\n\n**Base parameters for CRUD operations on EntitySet:**\n\n- **`crudOperation: create`**: All EntityType properties (required if not nullable) - Creates new entity in the collection\n- **`crudOperation: read`**: `select`, `filter`, `expand`, `count`, `top`, `skip`, `orderby`, `search` - Query options for collection\n- **`crudOperation: readByKey`**: All key properties, `select`, `expand` - Access single entity by key\n- **`crudOperation: update`**: All key properties, all EntityType properties (keys required) - Updates existing entity\n- **`crudOperation: delete`**: All key properties - Deletes entity by key\n- **`crudOperation: count`**: `filter`, `search` - Counts entities matching criteria\n- **`operation`**: Parent entity key properties, target entity key properties - Bound operation (see operation parameter handling)\n- **`navigationProperty`**: Parent entity key properties, target entity key properties - Navigate to next level",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Fully qualified EntitySet name (e.g., Namespace.EntityContainer.EntitySetName).",
+          "examples": ["DisputeService.EntityContainer.Disputes"]
+        },
+        "crudOperation": {
+          "type": "string",
+          "enum": ["create", "read", "readByKey", "update", "delete", "count"],
+          "description": "CRUD operation type. Only allowed, if `operation` and `navigationProperty` are not specified."
+        },
+        "operation": {
+          "$ref": "#/definitions/McpTranslationODataOperation",
+          "description": "Bound action or function. Only allowed, if `crudOperation` and `navigationProperty` are not specified."
+        },
+        "navigationProperty": {
+          "$ref": "#/definitions/McpTranslationODataNavigationProperty",
+          "description": "Navigation property to a related EntityType. Only allowed, if `crudOperation` and `operation` are not specified."
+        },
+        "parameters": {
+          "type": "array",
+          "description": "Parameter overrides for the parameters contributed by this entity (i.e. its key properties).\nEach entry overrides a base parameter by name. Names are unambiguous at this level.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationODataParameterOverride"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationODataNavigationProperty": {
+      "type": "object",
+      "title": "OData Navigation Property",
+      "description": "Reference to an OData navigation property, used to traverse from one EntityType to a related EntityType.\n\n**Base parameters for collection navigation properties (0..* or 1..*):**\n\n- **`crudOperation: create`**: Parent entity key properties, all target EntityType properties (required if not nullable) - Creates new entity in the related collection\n- **`crudOperation: read`**: Parent entity key properties, `select`, `filter`, `expand`, `count`, `top`, `skip`, `orderby`, `search` - Query options for related collection\n- **`crudOperation: readByKey`**: Parent entity key properties, target entity key properties, `select`, `expand` - Access specific entity in related collection\n- **`crudOperation: update`**: Parent entity key properties, target entity key properties, all target EntityType properties (keys required) - Updates entity in related collection\n- **`crudOperation: delete`**: Parent entity key properties, target entity key properties - Deletes entity from related collection\n- **`crudOperation: count`**: Parent entity key properties, `filter`, `search` - Counts entities in related collection\n- **`operation`**: Parent entity key properties, target entity key properties - Bound operation (see operation parameter handling)\n- **Further `navigationProperty`**: Parent entity key properties, target entity key properties - Continue navigation to next level\n\n**Base parameters for single-value navigation properties (0..1 or 1):**\n\n- **`crudOperation: create`**: Parent entity key properties, all target EntityType properties (required if not nullable) - Creates new related entity and establishes relationship\n- **`crudOperation: read`**: Parent entity key properties, `select`, `expand` - Reads the single related entity (may return null for 0..1)\n- **`crudOperation: readByKey`**: Not applicable - Single-value navigation already references specific entity\n- **`crudOperation: update`**: Parent entity key properties, all target EntityType properties (keys required) - Updates the existing related entity\n- **`crudOperation: delete`**: Parent entity key properties - Deletes the related entity\n- **`crudOperation: count`**: Not applicable - Single-value navigation has at most one entity\n- **`operation`**: Parent entity key properties only - No target keys needed (navigation identifies the entity)\n- **Further `navigationProperty`**: Parent entity key properties only - Continue navigation to next level\n\n**Notes:**\n- **Parent entity key properties:** Keys needed to identify the entity from which you're navigating\n- **Target entity key properties:** Keys needed to identify a specific entity within a collection\n- **Single-value navigation:** No key parameters needed at navigation level; no collection query options\n- **`readByKey` in enum:** Kept for collection navigation; not applicable for single-value\n\nNote: Structurally, this is identical to `McpTranslationODataEntitySet`. However, the semantic of the `name` property differs.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the navigation property.",
+          "examples": ["to_BusinessPartnerAddress"]
+        },
+        "crudOperation": {
+          "type": "string",
+          "enum": ["create", "read", "readByKey", "update", "delete", "count"],
+          "description": "CRUD operation type on the target EntityType. Only allowed, if `operation` and `navigationProperty` are not specified."
+        },
+        "operation": {
+          "$ref": "#/definitions/McpTranslationODataOperation",
+          "description": "Bound action or function on the target EntityType. Only allowed, if `crudOperation` and `navigationProperty` are not specified."
+        },
+        "navigationProperty": {
+          "$ref": "#/definitions/McpTranslationODataNavigationProperty",
+          "description": "Further navigation property on the target EntityType. Only allowed, if `crudOperation` and `operation` are not specified."
+        },
+        "parameters": {
+          "type": "array",
+          "description": "Parameter overrides for the parameters contributed at this navigation property level\n(i.e. the key properties of the target EntityType, or query options for a `read` crudOperation).\nEach entry overrides a base parameter by name. Names are unambiguous at this level.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationODataParameterOverride"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationODataOperation": {
+      "type": "object",
+      "title": "OData Operation",
+      "description": "OData action or function definition.\n\n**Parameter handling for operations:**\n\nAll parameters defined in the operation's signature (as specified in the OData metadata) are\nautomatically included as base parameters. These can be customized using the `parameters` array:\n- **Rename** parameters using `newParameterName`\n- **Hide** parameters using `deactivate: true` (only for optional parameters)\n- **Hardcode** parameter values using `value`\n- **Enhance** descriptions using `description` to provide better context for LLMs\n\n**Operation contexts and their base parameters:**\n- **Unbound operation** (via `odataType.operation`): Only operation parameters\n- **Bound to EntitySet** (via `entitySet.operation`): Entity key properties + operation parameters\n- **Bound via Navigation** (via `navigationProperty.operation`): Ancestor entity keys + operation parameters\n  - For single-value navigation: Only parent keys (navigation identifies the target)\n  - For collection navigation: Parent keys + target entity keys (if operation is entity-bound)\n\n**Functions vs Actions:**\n\n**Functions** (OData V4):\n- Idempotent and side-effect free\n- Invoked with HTTP GET\n- Suitable for read-only operations\n- Examples: Calculate, Get, Query\n\n**Actions** (OData V4):\n- May have side effects\n- Invoked with HTTP POST\n- Used for state-changing operations\n- Examples: Approve, Cancel, Post, Submit\n\n**OData V2 Function Imports:**\n- V2 Function Imports are unbound operations (use `odataType.operation`)\n- Always unbound (no entity context)\n- Use `\"type\": \"function\"` for read-only operations\n- Use `\"type\": \"action\"` for operations with side effects (though V2 doesn't enforce this)",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the OData action or function.",
+          "examples": ["ActivateBusinessPartner"]
+        },
+        "type": {
+          "type": "string",
+          "enum": ["action", "function"],
+          "description": "Type of OData operation."
+        },
+        "parameters": {
+          "type": "array",
+          "description": "Parameter overrides for the parameters of this OData action or function.\nEach entry overrides a base parameter by name. Names are unambiguous at this level.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationODataParameterOverride"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationODataParameterOverride": {
+      "type": "object",
+      "title": "OData Parameter Override",
+      "description": "Parameter overrides allow you to customize the base parameters that are automatically\nderived from the OData metadata.\n\n**Base parameters** are automatically determined based on the operation context:\n- For CRUD operations on EntitySet: See base parameters table in `McpTranslationODataEntitySet`\n- For navigation properties: See base parameters tables in `McpTranslationODataNavigationProperty`\n- For operations: See parameter handling in `McpTranslationODataOperation`\n\n**Override capabilities:**\n- **Rename**: Use `newParameterName` to make parameters more intuitive for AI agents\n- **Hide**: Use `deactivate: true` to prevent exposure (only for optional parameters)\n- **Hardcode**: Use `value` to fix a parameter to a specific value\n- **Enhance**: Use `description` to provide better context for LLMs\n\n**Scope:**\nParameters are scoped to the level where they are declared:\n- `entitySet.parameters`: Override entity key properties and CRUD query options\n- `navigationProperty.parameters`: Override navigation target keys and query options\n- `operation.parameters`: Override operation-specific parameters\n\nParameter names are unambiguous within each scope. The flat MCP tool parameter list\nis the union of parameters from all levels (entitySet \u2192 navigation \u2192 operation),\nwith overrides applied at each level.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the base parameter to override. If no base parameter can be found with this name, this parameter will be ignored.",
+          "examples": ["filter", "select", "ID"]
+        },
+        "newParameterName": {
+          "type": "string",
+          "description": "New name for the parameter in the generated tool.\nThe MCP client will only see the `newParameterName`. When the request is made to the underlying API, the normal name is used instead to comply with the API specification.",
+          "examples": ["queryFilter"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Override description for the parameter. Useful to give more context to the LLM.",
+          "examples": ["OData filter expression. Example: ID eq '1000000'."]
+        },
+        "deactivate": {
+          "type": "boolean",
+          "description": "If true, this base parameter will not be exposed in the tool. Mutually exclusive with 'value'. This is only allowed, if the base parameter is not required.",
+          "default": false
+        },
+        "value": {
+          "description": "Hardcoded value for the parameter. When set, the parameter is not exposed in the tool\nbut this value is used when making the request. Mutually exclusive with 'deactivate'.\n\nFor complex types (objects, arrays), use JSON string encoding.\nFor numeric parameters (e.g., $top, $skip), provide the number as a string (e.g., \"10\").",
+          "type": "string",
+          "examples": ["10", "{\"key\": \"value\"}"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationOpenApiType": {
+      "type": "object",
+      "title": "OpenAPI Type",
+      "description": "Definition of an OpenAPI-specific tool. Defines which endpoint will be invoked when calling the tool.\nEither the combination of path and method needs to be provided, or the operationId.\nThis constraint is validated at runtime.",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "The API path of the operation",
+          "examples": ["/business-partners/{id}"]
+        },
+        "method": {
+          "type": "string",
+          "enum": ["get", "post", "put", "patch", "delete"],
+          "description": "The HTTP method of the operation"
+        },
+        "operationId": {
+          "type": "string",
+          "description": "Optional unique string used to identify an operation, as defined in the OpenAPI spec",
+          "examples": ["listBusinessPartners"]
+        },
+        "requestBody": {
+          "$ref": "#/definitions/McpTranslationOpenApiRequestBody"
+        },
+        "parameters": {
+          "type": "array",
+          "description": "Parameter overrides and configurations.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationOpenApiParameterOverride"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationOpenApiRequestBody": {
+      "type": "object",
+      "title": "OpenAPI Request Body",
+      "description": "Configuration for the request body. Required when the operation accepts a request body (e.g. POST, PUT, PATCH).\nThis constraint is validated at runtime.",
+      "properties": {
+        "contentType": {
+          "type": "string",
+          "description": "The media type to use when sending the request body (e.g. application/json, application/xml). Defaults to application/json if not specified.",
+          "default": "application/json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationOpenApiParameterOverride": {
+      "type": "object",
+      "title": "OpenAPI Parameter Override",
+      "description": "The parameters that are listed in the McpTranslation modify the parameters that come with the tool by default (the parameters here only define a delta).\nRenaming the parameter, or changing the description can help the LLM to better understand the usage. Parameters can be deactivated or a fixed value can be used, if the parameter should not be exposed to the MCP client.\n\nThe **base parameters** that are derived automatically are the union of the parameters defined on path-level and those defined on method-level in the OpenAPI spec (+ `body` if applicable).\nThese base parameters will be exposed as tool parameters at runtime, regardless of whether they are listed here or not (unless they are explicitly deactivated or hardcoded here).\nAny parameter listed here that cannot be associated with a base parameter will be ignored.\n\nIf the operation requires a request body, a base parameter with name `body` is used by default as well.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the base parameter to override. If no base parameter can be found with this name, this parameter will be ignored.\nUse `body` to refer to the request body."
+        },
+        "in": {
+          "type": "string",
+          "enum": ["query", "path", "header", "cookie"],
+          "description": "The OpenAPI parameter location. Only needed to disambiguate when multiple parameters share the same name across different locations. Not applicable for the 'body' parameter."
+        },
+        "newParameterName": {
+          "type": "string",
+          "description": "New name for the parameter in the generated tool.\nThe MCP client will only see the `newParameterName`. When the request is made to the underlying API, the normal name is used instead to comply with the API specification."
+        },
+        "description": {
+          "type": "string",
+          "description": "Override description for the parameter. Useful to give more context to the LLM."
+        },
+        "deactivate": {
+          "type": "boolean",
+          "description": "If true, this base parameter will not be exposed in the tool. Mutually exclusive with 'value'. This is only allowed, if the base parameter is not required.",
+          "default": false
+        },
+        "value": {
+          "description": "Hardcoded value for the parameter. When set, the parameter is not exposed in the tool\nbut this value is used when making the request. Mutually exclusive with 'deactivate'.\n\nFor complex types (objects, arrays), use JSON string encoding.\nFor numeric parameters, provide the number as a string.",
+          "type": "string",
+          "examples": ["10", "{\"key\": \"value\"}"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationAnnotations": {
+      "type": "object",
+      "title": "Annotations",
+      "description": "Free-form annotations for the tool.",
+      "additionalProperties": true
+    },
+    "McpTranslationPromptDefinition": {
+      "type": "object",
+      "title": "Prompt Definition",
+      "description": "Definition of an MCP prompt to be exposed.",
+      "required": ["name", "title", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier for the prompt in snake_case format.",
+          "examples": ["summarize_disputes"]
+        },
+        "title": {
+          "type": "string",
+          "description": "Display title for the prompt.",
+          "examples": ["Summarize Disputes"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the prompt does.",
+          "examples": ["Generates a summary of open dispute cases"]
+        },
+        "arguments": {
+          "type": "array",
+          "description": "Arguments that the prompt accepts.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationPromptArgument"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "description": "Template messages for the prompt.",
+          "items": {
+            "$ref": "#/definitions/McpTranslationPromptMessage"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationPromptArgument": {
+      "type": "object",
+      "title": "Prompt Argument",
+      "description": "An argument accepted by a prompt.",
+      "required": ["name", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the prompt argument.",
+          "examples": ["status"]
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the argument.",
+          "examples": ["Filter disputes by status (e.g., open, closed)"]
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether this argument is required.",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationPromptMessage": {
+      "type": "object",
+      "title": "Prompt Message",
+      "description": "A template message within a prompt.",
+      "required": ["role", "content"],
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": ["user", "assistant"],
+          "description": "Role of the message sender."
+        },
+        "content": {
+          "$ref": "#/definitions/McpTranslationPromptContent"
+        }
+      },
+      "additionalProperties": false
+    },
+    "McpTranslationPromptContent": {
+      "type": "object",
+      "title": "Prompt Content",
+      "description": "The content of a prompt message.",
+      "required": ["type", "text"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text"],
+          "description": "Type of content. Currently only 'text' is supported."
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content. Required when type is 'text'.\nThe text can contain placeholders (marked with `{}`) that can be populated with the arguments provided by the MCP client.",
+          "examples": ["Hello {user}"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

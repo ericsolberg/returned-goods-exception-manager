@@ -1,0 +1,29 @@
+apiVersion: asset.sap/v1
+kind: Asset
+type: base-ui
+metadata:
+  id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+  name: returned-goods-exception-management
+probes:
+  startup:
+    path: /health
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 18
+  liveness:
+    path: /health
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+container:
+  buildPath: gen/srv
+  port: 4004
+  env:
+    PORT: "4004"

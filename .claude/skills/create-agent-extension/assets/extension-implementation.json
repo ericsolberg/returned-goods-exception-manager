@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Extension Descriptor",
+  "description": "Schema for an agent extension descriptor YAML file",
+  "type": "object",
+  "required": ["_schema-version", "kind", "metadata", "agent", "capabilityImplementations"],
+  "properties": {
+    "_schema-version": {
+      "type": "string",
+      "description": "Schema version of the extension descriptor",
+      "default": "0.1.0"
+    },
+    "kind": {
+      "type": "string",
+      "const": "Extension",
+      "description": "Resource type, must be 'Extension'"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the extension"
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Whether this is the default extension",
+          "default": true
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "required": ["ordId", "authIdentifier"],
+      "properties": {
+        "ordId": {
+          "type": "string",
+          "description": "ORD ID of the base agent being extended",
+          "pattern": "^sap\\.ai:agent:.+:v\\d+$"
+        },
+        "authIdentifier": {
+          "type": "string",
+          "description": "Authentication identifier for the base agent",
+          "format": "uuid"
+        }
+      }
+    },
+    "capabilityImplementations": {
+      "type": "array",
+      "description": "List of capability implementations provided by this extension",
+      "items": {
+        "type": "object",
+        "required": ["capabilityId"],
+        "properties": {
+          "capabilityId": {
+            "type": "string",
+            "description": "Identifier of the capability being implemented"
+          },
+          "tools": {
+            "type": "array",
+            "description": "MCP tools provided by this capability implementation",
+            "items": {
+              "type": "object",
+              "required": ["ordId", "mcpToolName", "mcpUrl"],
+              "properties": {
+                "ordId": {
+                  "type": "string",
+                  "description": "ORD ID of the MCP tool"
+                },
+                "mcpToolName": {
+                  "type": "string",
+                  "description": "Name of the tool as exposed via MCP"
+                },
+                "mcpUrl": {
+                  "type": "string",
+                  "description": "URL of the MCP server providing this tool",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "hooks": {
+            "type": "array",
+            "description": "Lifecycle hooks for this capability implementation",
+            "items": {
+              "type": "object",
+              "required": ["hookId", "ordId", "name", "hookType", "deploymentType", "url"],
+              "properties": {
+                "hookId": {
+                  "type": "string",
+                  "description": "Unique identifier for the hook"
+                },
+                "ordId": {
+                  "type": "string",
+                  "description": "ORD ID of the hook"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Display name of the hook"
+                },
+                "hookType": {
+                  "type": "string",
+                  "enum": ["BEFORE", "AFTER"],
+                  "description": "Whether the hook runs before or after agent processing"
+                },
+                "deploymentType": {
+                  "type": "string",
+                  "enum": ["N8N", "CF", "KYMA"],
+                  "description": "Deployment type of the hook implementation"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "Webhook URL for the hook",
+                  "format": "uri"
+                },
+                "timeoutMs": {
+                  "type": "integer",
+                  "description": "Timeout in milliseconds for the hook execution",
+                  "default": 5000,
+                  "minimum": 0
+                },
+                "onFailure": {
+                  "type": "string",
+                  "enum": ["BLOCK", "CONTINUE"],
+                  "description": "Behavior when the hook fails: BLOCK stops execution, CONTINUE ignores the failure"
+                },
+                "order": {
+                  "type": "integer",
+                  "description": "Execution order when multiple hooks of the same type exist",
+                  "default": 0,
+                  "minimum": 0
+                },
+                "canShortCircuit": {
+                  "type": "boolean",
+                  "description": "Whether the hook can short-circuit the agent pipeline",
+                  "default": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

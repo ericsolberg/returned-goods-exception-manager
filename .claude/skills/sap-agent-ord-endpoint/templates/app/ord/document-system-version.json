@@ -1,0 +1,99 @@
+{
+  "openResourceDiscovery": "1.14",
+  "$schema": "https://open-resource-discovery.org/spec-v1/interfaces/Document.schema.json",
+  "perspective": "system-version",
+  "policyLevels": ["sap:ai:v1"],
+  "describedSystemInstance": {
+    "baseUrl": "{{AGENT_BASE_URL}}"
+  },
+  "describedSystemVersion": {
+    "version": "1.0.0"
+  },
+  "products": [
+    {
+      "ordId": "{{AGENT_NAMESPACE}}:product:{{AGENT_ORD_ID}}:",
+      "title": "{{AGENT_TITLE}}",
+      "vendor": "sap:vendor:SAP:",
+      "shortDescription": "{{AGENT_DESCRIPTION}}"
+    }
+  ],
+  "packages": [
+    {
+      "ordId": "{{AGENT_NAMESPACE}}:package:{{AGENT_ORD_ID}}:v1",
+      "title": "{{AGENT_TITLE}} Package",
+      "shortDescription": "Package for {{AGENT_TITLE}} and related resources",
+      "description": "{{AGENT_DESCRIPTION}}",
+      "version": "1.0.0",
+      "policyLevel": "sap:ai:v1",
+      "partOfProducts": ["{{AGENT_NAMESPACE}}:product:{{AGENT_ORD_ID}}:"],
+      "vendor": "sap:vendor:SAP:"
+    }
+  ],
+  "consumptionBundles": [
+    {
+      "ordId": "{{AGENT_NAMESPACE}}:consumptionBundle:{{AGENT_ORD_ID}}-api:v1",
+      "title": "{{AGENT_TITLE}} API",
+      "shortDescription": "Consumption bundle for {{AGENT_TITLE}} A2A API",
+      "description": "This consumption bundle provides access to the {{AGENT_TITLE}} via the A2A protocol.",
+      "version": "1.0.0"
+    }
+  ],
+  "agents": [
+    {
+      "ordId": "{{AGENT_NAMESPACE}}:agent:{{AGENT_ORD_ID}}:v1",
+      "title": "{{AGENT_TITLE}}",
+      "shortDescription": "{{AGENT_DESCRIPTION}}",
+      "description": "{{AGENT_LONG_DESCRIPTION}}",
+      "version": "1.0.0",
+      "visibility": "public",
+      "releaseStatus": "active",
+      "partOfPackage": "{{AGENT_NAMESPACE}}:package:{{AGENT_ORD_ID}}:v1",
+      "exposedApiResources": [
+        {
+          "ordId": "{{AGENT_NAMESPACE}}:apiResource:{{AGENT_ORD_ID}}-api:v1"
+        }
+      ],
+      "integrationDependencies": [],
+      "labels": {
+        "interactionMode": ["conversational"]
+      },
+      "tags": ["sap", "ai-agent", "a2a"]
+    }
+  ],
+  "apiResources": [
+    {
+      "ordId": "{{AGENT_NAMESPACE}}:apiResource:{{AGENT_ORD_ID}}-api:v1",
+      "title": "{{AGENT_TITLE}} A2A API",
+      "shortDescription": "A2A API for interacting with the {{AGENT_TITLE}}",
+      "description": "Agent-to-Agent (A2A) protocol API that enables interaction with the {{AGENT_TITLE}}.",
+      "version": "1.0.0",
+      "visibility": "public",
+      "releaseStatus": "active",
+      "partOfPackage": "{{AGENT_NAMESPACE}}:package:{{AGENT_ORD_ID}}:v1",
+      "partOfConsumptionBundles": [
+        {
+          "ordId": "{{AGENT_NAMESPACE}}:consumptionBundle:{{AGENT_ORD_ID}}-api:v1"
+        }
+      ],
+      "apiProtocol": "a2a",
+      "entryPoints": ["{{AGENT_BASE_URL}}"],
+      "extensible": {
+        "supported": "no"
+      },
+      "resourceDefinitions": [
+        {
+          "type": "a2a-agent-card",
+          "mediaType": "application/json",
+          "url": "{{AGENT_BASE_URL}}/agent-card",
+          "accessStrategies": [
+            {
+              "type": "open"
+            }
+          ]
+        }
+      ],
+      "tags": ["a2a", "agent-api"]
+    }
+  ],
+  "integrationDependencies": []
+}

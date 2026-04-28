@@ -1,0 +1,25 @@
+{
+  "xsappname": "returned-goods-exception-management",
+  "tenant-mode": "dedicated",
+  "description": "Returned Goods Exception Management",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.agent",
+      "description": "Technical scope for machine-to-machine agent access"
+    },
+    {
+      "name": "$XSAPPNAME.internal-user",
+      "description": "Read access for internal users"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "ExceptionManager",
+      "description": "Full access to exception management service",
+      "scope-references": [
+        "$XSAPPNAME.agent",
+        "$XSAPPNAME.internal-user"
+      ]
+    }
+  ]
+}

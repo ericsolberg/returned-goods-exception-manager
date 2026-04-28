@@ -1,0 +1,25 @@
+{
+  "name": "returned-goods-exception-management-cap",
+  "version": "1.0.0",
+  "description": "Returned Goods Exception Management CAP application.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@cap-js/sqlite": "^2",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^0.4.1",
+    "@sap/cds-dk": "^9.8.4",
+    "jest": "^30.3.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "build": "cds build && cp -R app gen/srv/app && find gen/srv/app -name '*.cds' -delete && mkdir -p gen/srv/db && cp -R db/data gen/srv/db/data",
+    "test": "npx jest"
+  },
+  "private": true
+}

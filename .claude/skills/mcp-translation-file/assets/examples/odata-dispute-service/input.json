@@ -1,0 +1,44 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dispute Service",
+    "description": "OData V4 API for managing disputes in SAP S/4HANA. Entity container: DisputeService.EntityContainer.",
+    "version": "1.0.0"
+  },
+  "x-odata-version": "4.0",
+  "x-ord-id": "sap.s4:apiResource:dispute-service:v1",
+  "x-api-type": "edmx",
+  "paths": {
+    "/Disputes": {
+      "get": {
+        "summary": "Read Disputes",
+        "description": "Retrieve disputes from SAP S/4HANA.",
+        "parameters": [
+          { "name": "$filter", "in": "query", "description": "OData filter expression" },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "Comma-separated list of fields to return"
+          },
+          { "name": "$top", "in": "query", "description": "Maximum number of records" },
+          { "name": "$skip", "in": "query", "description": "Number of records to skip" },
+          { "name": "$orderby", "in": "query", "description": "Sort order" }
+        ]
+      },
+      "post": {
+        "summary": "Create Dispute",
+        "description": "Create a new dispute case in SAP S/4HANA."
+      }
+    },
+    "/Disputes('{ID}')": {
+      "patch": {
+        "summary": "Update Dispute",
+        "description": "Update an existing dispute by ID."
+      },
+      "delete": {
+        "summary": "Delete Dispute",
+        "description": "Delete a dispute case."
+      }
+    }
+  }
+}
