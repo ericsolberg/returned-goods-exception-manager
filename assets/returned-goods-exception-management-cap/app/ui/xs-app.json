@@ -5,14 +5,14 @@
     {
       "source": "^/exception/(.*)$",
       "target": "/exception/$1",
-      "destination": "cap-backend",
+      "destination": "returned-goods-exception-api",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },
     {
       "source": "^/intake/(.*)$",
       "target": "/intake/$1",
-      "destination": "cap-backend",
+      "destination": "returned-goods-exception-api",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },

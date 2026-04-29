@@ -51,7 +51,6 @@ modules:
         parameters:
           service-key:
             name: returned-goods-exception-management-html5-host-key
-      - name: srv-api
       - name: returned-goods-exception-management-destination
         parameters:
           content-target: true
@@ -87,24 +86,24 @@ resources:
   # ── Destination service ─────────────────────────────────────────────────
   - name: returned-goods-exception-management-destination
     type: org.cloudfoundry.managed-service
+    requires:
+      - name: srv-api
     parameters:
       service: destination
       service-plan: lite
       config:
         HTML5Runtime_enabled: true
         init_data:
-          instance:
+          subaccount:
             existing_destinations_policy: update
             destinations:
-              - Name: cap-backend
+              - Name: returned-goods-exception-api
                 URL: ~{srv-api/srv-url}
                 Authentication: NoAuthentication
                 Type: HTTP
                 ProxyType: Internet
                 HTML5.ForwardAuthToken: true
                 HTML5.DynamicDestination: true
-    requires:
-      - name: srv-api
 
   # ── HTML5 Application Repository (app-host) ────────────────────────────
   - name: returned-goods-exception-management-html5-host
@@ -119,4 +118,4 @@ build-parameters:
       commands:
         - npm ci
         - npm run build
-        - mkdir -p resources && (cd app/ui && npm run build) && (cd app/ui/dist && zip -r ../../../resources/returned-goods-exception-management-ui.zip .)
+        - npm run build:ui

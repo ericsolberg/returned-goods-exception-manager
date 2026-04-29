@@ -8,8 +8,8 @@
     "applicationVersion": { "version": "1.0.0" },
     "crossNavigation": {
       "inbounds": {
-        "ReturnedGoodsExceptionManagement-display": {
-          "semanticObject": "ReturnedGoodsExceptionManagement",
+        "ReturnedGoodsException-display": {
+          "semanticObject": "ReturnedGoodsException",
           "action": "display",
           "signature": { "parameters": {}, "additionalParameters": "allowed" },
           "title": "Returned Goods Exception Management",

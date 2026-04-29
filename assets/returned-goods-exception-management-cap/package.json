@@ -19,6 +19,7 @@
   "scripts": {
     "start": "cds-serve",
     "build": "cds build && cp -R app gen/srv/app && find gen/srv/app -name '*.cds' -delete && mkdir -p gen/srv/db && cp -R db/data gen/srv/db/data",
+    "build:ui": "mkdir -p resources && cd app/ui && npm run build && cd dist && zip -r ../../../resources/returned-goods-exception-management-ui.zip .",
     "test": "npx jest"
   },
   "private": true
