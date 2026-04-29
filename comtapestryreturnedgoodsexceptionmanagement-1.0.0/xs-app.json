@@ -1,0 +1,26 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^/exception/(.*)$",
+      "target": "/exception/$1",
+      "destination": "returned-goods-exception-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/intake/(.*)$",
+      "target": "/intake/$1",
+      "destination": "returned-goods-exception-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

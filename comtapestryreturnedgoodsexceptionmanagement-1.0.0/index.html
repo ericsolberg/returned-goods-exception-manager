@@ -85,7 +85,7 @@
     ) {
 
       /* ── OData helper ─────────────────────────────────────────────────── */
-      const BASE = "exception";
+      const BASE = "/exception";
       async function odata(path, opts = {}) {
         const res = await fetch(BASE + path, {
           ...opts,

@@ -1,0 +1,41 @@
+{
+  "_version": "1.49.0",
+  "sap.app": {
+    "id": "com.tapestry.returnedgoodsexceptionmanagement",
+    "type": "application",
+    "title": "Returned Goods Exception Management",
+    "description": "Manage and resolve returned goods exceptions",
+    "applicationVersion": { "version": "1.0.0" },
+    "crossNavigation": {
+      "inbounds": {
+        "ReturnedGoodsException-display": {
+          "semanticObject": "ReturnedGoodsException",
+          "action": "display",
+          "signature": { "parameters": {}, "additionalParameters": "allowed" },
+          "title": "Returned Goods Exception Management",
+          "subTitle": "Exception Worklist",
+          "icon": "sap-icon://approvals"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": { "desktop": true, "tablet": true, "phone": false }
+  },
+  "sap.ui5": {
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": { "sap.m": {}, "sap.ui.layout": {}, "sap.ui.core": {} }
+    },
+    "contentDensities": { "compact": true, "cozy": true }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "returnedgoodsexceptionmanagement.service"
+  }
+}
