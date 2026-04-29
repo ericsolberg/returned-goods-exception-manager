@@ -1,0 +1,299 @@
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  controllerName="com.tapestry.returnedgoodsexceptionmanagement.controller.App"
+  displayBlock="true">
+
+  <!-- ── App shell ───────────────────────────────────────────────────────── -->
+  <App id="navApp">
+
+    <!-- ── List Page ──────────────────────────────────────────────────────── -->
+    <Page id="listPage">
+      <customHeader>
+        <Bar>
+          <contentLeft>
+            <Image id="tapestryLogo" alt="Tapestry" height="30px" class="sapUiSmallMarginEnd"/>
+            <Title text="Returned Goods Exception Management"/>
+          </contentLeft>
+          <contentRight>
+            <Button text="Regenerate Proposal"  type="Default"    press=".onRegenerateProposal"/>
+            <Button text="Post Confirmed Items" type="Emphasized" press=".onPostConfirmedItems"/>
+            <Button text="Reset Run"            type="Reject"     press=".onResetRun"/>
+            <Button icon="sap-icon://refresh"   type="Default"    press=".onRefresh"/>
+          </contentRight>
+        </Bar>
+      </customHeader>
+
+      <content>
+        <MessageStrip
+          text="{banner>/msg}"
+          type="{banner>/type}"
+          visible="{banner>/visible}"
+          showIcon="true"
+          showCloseButton="true"
+          close=".onBannerClose"
+          class="sapUiSmallMarginBottom"/>
+
+        <!-- Metric cards -->
+        <HBox class="rgmMetricsRow">
+          <VBox class="rgmMetricCard">
+            <Text text="Matched"               class="rgmMetricLabel"/>
+            <Text text="{= '' + ${list>/matched/length}}"   class="rgmMetricCount"/>
+            <Text text="Ready for confirmation" class="rgmMetricSubtitle"/>
+          </VBox>
+          <VBox class="rgmMetricCard">
+            <Text text="Ambiguous"      class="rgmMetricLabel"/>
+            <Text text="{= '' + ${list>/ambiguous/length}}" class="rgmMetricCount"/>
+            <Text text="Need review"    class="rgmMetricSubtitle"/>
+          </VBox>
+          <VBox class="rgmMetricCard">
+            <Text text="Unmatched"      class="rgmMetricLabel"/>
+            <Text text="{= '' + ${list>/unmatched/length}}" class="rgmMetricCount"/>
+            <Text text="No match found" class="rgmMetricSubtitle"/>
+          </VBox>
+        </HBox>
+
+        <!-- Order tabs -->
+        <IconTabBar>
+          <items>
+            <IconTabFilter id="matchedTab"   text="Matched"   key="matched"
+                           count="{= '' + ${list>/matched/length}}">
+              <Table growing="true" growingThreshold="20" noDataText="No orders"
+                     mode="SingleSelectMaster" selectionChange=".onOrderSelected"
+                     items="{list>/matched}">
+                <columns>
+                  <Column width="16rem"><Label text="External Order Ref"/></Column>
+                  <Column width="14rem"><Label text="Customer Ref"/></Column>
+                  <Column width="10rem"><Label text="Received Date"/></Column>
+                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                </columns>
+                <items>
+                  <ColumnListItem>
+                    <cells>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerRef}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <ObjectStatus
+                        text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
+                        state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                    </cells>
+                  </ColumnListItem>
+                </items>
+              </Table>
+            </IconTabFilter>
+
+            <IconTabFilter id="ambiguousTab" text="Ambiguous" key="ambiguous"
+                           count="{= '' + ${list>/ambiguous/length}}">
+              <Table growing="true" growingThreshold="20" noDataText="No orders"
+                     mode="SingleSelectMaster" selectionChange=".onOrderSelected"
+                     items="{list>/ambiguous}">
+                <columns>
+                  <Column width="16rem"><Label text="External Order Ref"/></Column>
+                  <Column width="14rem"><Label text="Customer Ref"/></Column>
+                  <Column width="10rem"><Label text="Received Date"/></Column>
+                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                </columns>
+                <items>
+                  <ColumnListItem>
+                    <cells>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerRef}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <ObjectStatus
+                        text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
+                        state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                    </cells>
+                  </ColumnListItem>
+                </items>
+              </Table>
+            </IconTabFilter>
+
+            <IconTabFilter id="unmatchedTab" text="Unmatched" key="unmatched"
+                           count="{= '' + ${list>/unmatched/length}}">
+              <Table growing="true" growingThreshold="20" noDataText="No orders"
+                     mode="SingleSelectMaster" selectionChange=".onOrderSelected"
+                     items="{list>/unmatched}">
+                <columns>
+                  <Column width="16rem"><Label text="External Order Ref"/></Column>
+                  <Column width="14rem"><Label text="Customer Ref"/></Column>
+                  <Column width="10rem"><Label text="Received Date"/></Column>
+                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                </columns>
+                <items>
+                  <ColumnListItem>
+                    <cells>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerRef}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <ObjectStatus
+                        text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
+                        state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                    </cells>
+                  </ColumnListItem>
+                </items>
+              </Table>
+            </IconTabFilter>
+          </items>
+        </IconTabBar>
+      </content>
+    </Page>
+
+    <!-- ── Detail Page ────────────────────────────────────────────────────── -->
+    <Page id="detailPage" showNavButton="true" navButtonPress=".onNavBack"
+          title="Order Detail" class="sapUiContentPadding">
+      <content>
+        <MessageStrip
+          text="{banner>/msg}"
+          type="{banner>/type}"
+          visible="{banner>/visible}"
+          showIcon="true"
+          showCloseButton="true"
+          close=".onBannerClose"
+          class="sapUiSmallMarginBottom"/>
+
+        <!-- Status row -->
+        <HBox renderType="Bare" class="sapUiSmallMarginBottom">
+          <ObjectStatus title="Status"
+            text="{path: 'detail>/order/status_code', formatter: '.formatStatusText'}"
+            state="{path: 'detail>/order/status_code', formatter: '.formatStatusState'}"/>
+          <ObjectStatus title="Signal"
+            text="{path: 'detail>/order/signalStatus', formatter: '.formatSignalText'}"
+            state="{path: 'detail>/order/signalStatus', formatter: '.formatSignalState'}"/>
+        </HBox>
+
+        <!-- Header form -->
+        <HBox wrap="Wrap" renderType="Bare" class="sapUiSmallMarginBottom">
+          <VBox width="16rem">
+            <Label text="External Order Ref"/>
+            <Text text="{path: 'detail>/order/externalOrderRef', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Customer Ref"/>
+            <Text text="{path: 'detail>/order/customerRef', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Received Date"/>
+            <Text text="{path: 'detail>/order/receivedDate', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Linked Order ID"/>
+            <Text text="{path: 'detail>/order/linkedOrderId', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Notes"/>
+            <Text text="{path: 'detail>/order/notes', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Created By"/>
+            <Text text="{path: 'detail>/order/createdBy', formatter: '.formatValue'}"/>
+          </VBox>
+        </HBox>
+
+        <!-- Action toolbar -->
+        <Toolbar class="sapUiSmallMarginBottom">
+          <Button text="Confirm"
+            type="Emphasized"
+            visible="{= ${detail>/order/status_code} === 'MATCHED'}"
+            press=".onConfirm"/>
+          <Button text="Escalate"
+            type="Default"
+            visible="{= ${detail>/order/status_code} === 'MATCHED'}"
+            press=".onOpenEscalate"/>
+          <Button text="Resolve"
+            type="Emphasized"
+            visible="{= ${detail>/order/status_code} === 'AMBIGUOUS'}"
+            press=".onOpenResolve"/>
+          <Button text="Reject"
+            type="Reject"
+            visible="{= ${detail>/order/status_code} === 'AMBIGUOUS' || ${detail>/order/status_code} === 'UNMATCHED'}"
+            press=".onOpenReject"/>
+          <Button text="Link Order"
+            type="Default"
+            visible="{= ${detail>/order/status_code} === 'UNMATCHED'}"
+            press=".onOpenLink"/>
+          <Button text="Retry Signal"
+            type="Default"
+            visible="{= ${detail>/order/signalStatus} === 'FAILED'}"
+            press=".onRetrySignal"/>
+          <ToolbarSpacer/>
+        </Toolbar>
+
+        <!-- Detail tabs -->
+        <IconTabBar>
+          <items>
+            <IconTabFilter text="Items" key="items">
+              <HBox renderType="Bare" wrap="Wrap">
+                <!-- Expected Items -->
+                <Table headerText="Expected Items"
+                       items="{detail>/expected}">
+                  <columns>
+                    <Column width="9rem" ><Label text="Material ID"/></Column>
+                    <Column width="auto" ><Label text="Description"/></Column>
+                    <Column width="6rem" hAlign="End"><Label text="Qty"/></Column>
+                    <Column width="5rem" ><Label text="Unit"/></Column>
+                  </columns>
+                  <items>
+                    <ColumnListItem>
+                      <cells>
+                        <Text text="{detail>materialId}"/>
+                        <Text text="{detail>materialDescription}"/>
+                        <Text text="{detail>expectedQty}"/>
+                        <Text text="{detail>unit}"/>
+                      </cells>
+                    </ColumnListItem>
+                  </items>
+                </Table>
+                <!-- Received Items -->
+                <Table headerText="Received Items"
+                       items="{detail>/received}">
+                  <columns>
+                    <Column width="9rem" ><Label text="Material ID"/></Column>
+                    <Column width="auto" ><Label text="Description"/></Column>
+                    <Column width="6rem" hAlign="End"><Label text="Qty"/></Column>
+                    <Column width="5rem" ><Label text="Unit"/></Column>
+                    <Column width="8rem" ><Label text="Condition"/></Column>
+                  </columns>
+                  <items>
+                    <ColumnListItem>
+                      <cells>
+                        <Text text="{detail>materialId}"/>
+                        <Text text="{detail>materialDescription}"/>
+                        <Text text="{detail>receivedQty}"/>
+                        <Text text="{detail>unit}"/>
+                        <Text text="{detail>condition}"/>
+                      </cells>
+                    </ColumnListItem>
+                  </items>
+                </Table>
+              </HBox>
+            </IconTabFilter>
+
+            <IconTabFilter text="History" key="history">
+              <Table headerText="Audit History"
+                     items="{detail>/history}">
+                <columns>
+                  <Column width="14rem"><Label text="Timestamp"/></Column>
+                  <Column width="14rem"><Label text="User"/></Column>
+                  <Column width="12rem"><Label text="Action"/></Column>
+                  <Column width="auto" ><Label text="Reason"/></Column>
+                </columns>
+                <items>
+                  <ColumnListItem>
+                    <cells>
+                      <Text text="{path: 'detail>createdAt', formatter: '.formatTimestamp'}"/>
+                      <Text text="{path: 'detail>userId',    formatter: '.formatValue'}"/>
+                      <Text text="{detail>action}"/>
+                      <Text text="{path: 'detail>reason',    formatter: '.formatValue'}"/>
+                    </cells>
+                  </ColumnListItem>
+                </items>
+              </Table>
+            </IconTabFilter>
+          </items>
+        </IconTabBar>
+      </content>
+    </Page>
+
+  </App>
+</mvc:View>

@@ -1,0 +1,64 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+
+  <Dialog id="escalateDialog" title="Escalate Order">
+    <content>
+      <Label text="Reason" required="true" class="sapUiSmallMarginTop"/>
+      <TextArea id="escalateReason" width="100%" placeholder="Describe the ambiguity…" rows="3"/>
+    </content>
+    <beginButton>
+      <Button text="Cancel" type="Default" press=".onEscalateCancel"/>
+    </beginButton>
+    <endButton>
+      <Button text="Escalate" type="Emphasized" press=".onEscalateConfirm"/>
+    </endButton>
+  </Dialog>
+
+  <Dialog id="resolveDialog" title="Resolve Order">
+    <content>
+      <Label text="Decision" required="true" class="sapUiSmallMarginTop"/>
+      <Select id="resolveDecision">
+        <items>
+          <core:Item key="ACCEPT" text="Accept"/>
+          <core:Item key="REJECT" text="Reject"/>
+        </items>
+      </Select>
+      <Label text="Reason" required="true"/>
+      <TextArea id="resolveReason" width="100%" placeholder="Resolution reason…" rows="3"/>
+    </content>
+    <beginButton>
+      <Button text="Cancel" type="Default" press=".onResolveCancel"/>
+    </beginButton>
+    <endButton>
+      <Button text="Confirm" type="Emphasized" press=".onResolveConfirm"/>
+    </endButton>
+  </Dialog>
+
+  <Dialog id="rejectDialog" title="Reject Order">
+    <content>
+      <Label text="Reason" required="true" class="sapUiSmallMarginTop"/>
+      <TextArea id="rejectReason" width="100%" placeholder="Rejection reason…" rows="3"/>
+    </content>
+    <beginButton>
+      <Button text="Cancel" type="Default" press=".onRejectCancel"/>
+    </beginButton>
+    <endButton>
+      <Button text="Reject" type="Reject" press=".onRejectConfirm"/>
+    </endButton>
+  </Dialog>
+
+  <Dialog id="linkDialog" title="Link to Sales Order">
+    <content>
+      <Label text="Sales Order ID" required="true" class="sapUiSmallMarginTop"/>
+      <Input id="linkOrderId" width="100%" placeholder="SO-2024-XXXXX"/>
+      <Label text="Reason"/>
+      <TextArea id="linkReason" width="100%" placeholder="Optional reason…" rows="3"/>
+    </content>
+    <beginButton>
+      <Button text="Cancel" type="Default" press=".onLinkCancel"/>
+    </beginButton>
+    <endButton>
+      <Button text="Link" type="Emphasized" press=".onLinkConfirm"/>
+    </endButton>
+  </Dialog>
+
+</core:FragmentDefinition>

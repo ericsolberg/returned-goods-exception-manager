@@ -6,6 +6,13 @@
     "title": "Returned Goods Exception Management",
     "description": "Manage and resolve returned goods exceptions",
     "applicationVersion": { "version": "1.0.0" },
+    "dataSources": {
+      "ExceptionService": {
+        "uri": "exception/",
+        "type": "OData",
+        "settings": { "odataVersion": "4.0" }
+      }
+    },
     "crossNavigation": {
       "inbounds": {
         "ReturnedGoodsException-display": {
@@ -24,11 +31,20 @@
     "deviceTypes": { "desktop": true, "tablet": true, "phone": false }
   },
   "sap.ui5": {
+    "rootView": {
+      "viewName": "com.tapestry.returnedgoodsexceptionmanagement.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "app"
+    },
     "dependencies": {
       "minUI5Version": "1.120.0",
       "libs": { "sap.m": {}, "sap.ui.layout": {}, "sap.ui.core": {} }
     },
-    "contentDensities": { "compact": true, "cozy": true }
+    "contentDensities": { "compact": true, "cozy": true },
+    "resources": {
+      "css": [{ "uri": "css/style.css" }]
+    }
   },
   "sap.fiori": {
     "registrationIds": [],

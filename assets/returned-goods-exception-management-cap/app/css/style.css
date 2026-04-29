@@ -1,0 +1,32 @@
+.rgmMetricsRow {
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+.rgmMetricCard {
+  border: 1px solid var(--sapList_BorderColor, #e0e0e0);
+  border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--sapBackgroundColor, #fff);
+  min-width: 160px;
+  flex: 0 0 auto;
+}
+.rgmMetricLabel {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em;
+  color: var(--sapContent_LabelColor, #556b82) !important;
+  text-transform: uppercase;
+}
+.rgmMetricCount {
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1;
+  color: var(--sapTextColor, #1d2d3e) !important;
+  display: block;
+  margin: 0.15rem 0;
+}
+.rgmMetricSubtitle {
+  font-size: 0.8rem !important;
+  color: var(--sapContent_LabelColor, #556b82) !important;
+}
