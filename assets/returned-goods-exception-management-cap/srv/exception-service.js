@@ -80,7 +80,7 @@ module.exports = class ExceptionService extends cds.ApplicationService {
 
       const n = await UPDATE('returns.exceptions.ReturnOrders', ID)
         .where({ status_code: 'MATCHED' })
-        .with({ status_code: 'AMBIGUOUS' });
+        .with({ status_code: 'PARTIAL' });
 
       if (!n) return req.reject(409, 'Action not allowed in current status');
 
@@ -92,7 +92,7 @@ module.exports = class ExceptionService extends cds.ApplicationService {
         userId: req.user.id
       });
 
-      console.log(`M3.achieved: order escalated to ambiguous [orderId=${ID}]`);
+      console.log(`M3.achieved: order escalated to partial [orderId=${ID}]`);
     });
 
     // ── resolve ───────────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ module.exports = class ExceptionService extends cds.ApplicationService {
       const auditAction  = decision === 'ACCEPT' ? 'RESOLVED_ACCEPTED'  : 'RESOLVED_REJECTED';
 
       const n = await UPDATE('returns.exceptions.ReturnOrders', ID)
-        .where({ status_code: 'AMBIGUOUS' })
+        .where({ status_code: 'PARTIAL' })
         .with({ status_code: targetStatus });
 
       if (!n) return req.reject(409, 'Action not allowed in current status');
@@ -123,11 +123,11 @@ module.exports = class ExceptionService extends cds.ApplicationService {
 
       try {
         await signalPostingAgent(ID, decision === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED', null, req.user.id);
-        console.log(`M3.achieved: ambiguous order resolved [orderId=${ID}, decision=${decision}, userId=${req.user.id}]`);
+        console.log(`M3.achieved: partial order resolved [orderId=${ID}, decision=${decision}, userId=${req.user.id}]`);
       } catch (err) {
         await UPDATE('returns.exceptions.ReturnOrders', ID).with({ signalStatus: 'FAILED' });
         req.warn(503, `Decision saved, but posting agent signal failed: ${err.message}`);
-        console.log(`M3.missed: ambiguous order resolution failed [orderId=${ID}, reason=${err.message}]`);
+        console.log(`M3.missed: partial order resolution failed [orderId=${ID}, reason=${err.message}]`);
       }
     });
 
@@ -141,7 +141,7 @@ module.exports = class ExceptionService extends cds.ApplicationService {
       const originalStatus = row?.status_code;
 
       const n = await UPDATE('returns.exceptions.ReturnOrders', ID)
-        .where({ status_code: { in: ['UNMATCHED', 'AMBIGUOUS'] } })
+        .where({ status_code: { in: ['UNMATCHED', 'PARTIAL'] } })
         .with({ status_code: 'RESOLVED_REJECTED' });
 
       if (!n) return req.reject(409, 'Action not allowed in current status');
@@ -159,7 +159,7 @@ module.exports = class ExceptionService extends cds.ApplicationService {
         if (originalStatus === 'UNMATCHED') {
           console.log(`M4.achieved: unmatched order manually resolved [orderId=${ID}, linkedOrderId=null, userId=${req.user.id}]`);
         } else {
-          console.log(`M3.achieved: ambiguous order resolved [orderId=${ID}, decision=REJECT, userId=${req.user.id}]`);
+          console.log(`M3.achieved: partial order resolved [orderId=${ID}, decision=REJECT, userId=${req.user.id}]`);
         }
       } catch (err) {
         await UPDATE('returns.exceptions.ReturnOrders', ID).with({ signalStatus: 'FAILED' });

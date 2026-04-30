@@ -1,6 +1,6 @@
 ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus,linkedOrderId,notes,createdAt,createdBy,modifiedAt,modifiedBy
 43222416-5b0a-431f-9ad9-e8b81e8d535a,SO-2024-00123,CUST-DE-4711,2024-03-15,MATCHED,PENDING,,,2024-03-15T08:00:00.000Z,system@returns.sap,2024-03-15T08:00:00.000Z,system@returns.sap
 43222427-cacf-4dc9-b9ff-847e99fc2baa,SO-2024-00187,CUST-FR-0092,2024-03-18,MATCHED,PENDING,,,2024-03-18T09:30:00.000Z,system@returns.sap,2024-03-18T09:30:00.000Z,system@returns.sap
-43222432-0cff-431a-8d29-f4b555d40fb1,SO-2024-00201,CUST-NL-3350,2024-03-20,AMBIGUOUS,PENDING,,Partial quantities received — 3 of 5 line items match,2024-03-20T10:15:00.000Z,system@returns.sap,2024-03-20T10:15:00.000Z,system@returns.sap
+43222432-0cff-431a-8d29-f4b555d40fb1,SO-2024-00201,CUST-NL-3350,2024-03-20,PARTIAL,PENDING,,Partial quantities received — 3 of 5 line items match,2024-03-20T10:15:00.000Z,system@returns.sap,2024-03-20T10:15:00.000Z,system@returns.sap
 43222445-57ac-48a5-b19e-462c7a9c2aeb,SO-2024-00244,CUST-UK-8821,2024-03-22,UNMATCHED,PENDING,,No matching sales order found for this return,2024-03-22T11:00:00.000Z,system@returns.sap,2024-03-22T11:00:00.000Z,system@returns.sap
 43222458-35ab-45da-836e-4bd57c327128,SO-2024-00259,CUST-DE-0015,2024-03-25,UNMATCHED,PENDING,,Customer claims return against invoice INV-2024-0099,2024-03-25T07:45:00.000Z,system@returns.sap,2024-03-25T07:45:00.000Z,system@returns.sap

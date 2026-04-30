@@ -1,6 +1,6 @@
 code;name;descr
 MATCHED;Matched;Returned goods matched to order automatically
-AMBIGUOUS;Ambiguous;Partial or conflicting match — requires review
+PARTIAL;Partial;Partial or conflicting match — requires review
 UNMATCHED;Unmatched;No matching order found — requires manual resolution
 RESOLVED_CONFIRMED;Resolved – Confirmed;Match confirmed and posting agent signalled
 RESOLVED_REJECTED;Resolved – Rejected;Return rejected

@@ -16,14 +16,9 @@ sap.ui.define([
   return Controller.extend("com.tapestry.returnedgoodsexceptionmanagement.controller.App", {
 
     onInit: function () {
-      var sBase = sap.ui.require.toUrl("com/tapestry/returnedgoodsexceptionmanagement");
-
-      this.getView().setModel(new JSONModel({ orders: [], matched: [], ambiguous: [], unmatched: [] }), "list");
+      this.getView().setModel(new JSONModel({ orders: [], matched: [], partial: [], unmatched: [] }), "list");
       this.getView().setModel(new JSONModel({ order: null, expected: [], received: [], history: [] }), "detail");
       this.getView().setModel(new JSONModel({ msg: "", type: "Information", visible: false }), "banner");
-      this.getView().setModel(new JSONModel({ logoUrl: sBase + "/tapestry-logo.png" }), "config");
-
-      this.byId("tapestryLogo").setSrc(sBase + "/tapestry-logo.png");
 
       Fragment.load({
         id: this.getView().getId(),
@@ -88,9 +83,9 @@ sap.ui.define([
         var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus");
         var orders    = d.value;
         var matched   = orders.filter(function (o) { return o.status_code === "MATCHED"; });
-        var ambiguous = orders.filter(function (o) { return o.status_code === "AMBIGUOUS"; });
+        var partial = orders.filter(function (o) { return o.status_code === "PARTIAL"; });
         var unmatched = orders.filter(function (o) { return o.status_code === "UNMATCHED"; });
-        this.getView().getModel("list").setData({ orders: orders, matched: matched, ambiguous: ambiguous, unmatched: unmatched });
+        this.getView().getModel("list").setData({ orders: orders, matched: matched, partial: partial, unmatched: unmatched });
       } catch (e) {
         this._showBanner(e.message, "Error");
       }
@@ -272,7 +267,7 @@ sap.ui.define([
     formatStatusText: function (code) {
       var map = {
         MATCHED:            "Matched",
-        AMBIGUOUS:          "Ambiguous",
+        PARTIAL:            "Partial",
         UNMATCHED:          "Unmatched",
         RESOLVED_CONFIRMED: "Confirmed",
         RESOLVED_REJECTED:  "Rejected",
@@ -285,7 +280,7 @@ sap.ui.define([
     formatStatusState: function (code) {
       var map = {
         MATCHED:            "Warning",
-        AMBIGUOUS:          "Warning",
+        PARTIAL:            "Warning",
         UNMATCHED:          "Error",
         RESOLVED_CONFIRMED: "Success",
         RESOLVED_REJECTED:  "None",

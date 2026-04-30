@@ -5,7 +5,7 @@ New CAP Node.js side-by-side extension on SAP BTP. The service is the system of 
 ## Goals / Non-Goals
 
 **Goals:**
-- Model return order exceptions with a status lifecycle (MATCHED → RESOLVED, AMBIGUOUS → RESOLVED, UNMATCHED → RESOLVED)
+- Model return order exceptions with a status lifecycle (MATCHED → RESOLVED, PARTIAL → RESOLVED, UNMATCHED → RESOLVED)
 - Expose bound CAP actions for each resolution path: `confirm`, `resolve`, `reject`, `escalate`, `linkOrder`
 - Record every decision in an append-only `AuditHistory` composition
 - Signal the posting agent via outbound HTTP after each resolution action

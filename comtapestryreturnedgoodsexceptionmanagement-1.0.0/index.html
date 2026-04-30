@@ -102,7 +102,7 @@
       function statusState(code) {
         const map = {
           MATCHED:            "Warning",
-          AMBIGUOUS:          "Warning",
+          PARTIAL:          "Warning",
           UNMATCHED:          "Error",
           RESOLVED_CONFIRMED: "Success",
           RESOLVED_REJECTED:  "None",
@@ -114,7 +114,7 @@
       function statusText(code) {
         const map = {
           MATCHED:            "Matched",
-          AMBIGUOUS:          "Ambiguous",
+          PARTIAL:            "Partial",
           UNMATCHED:          "Unmatched",
           RESOLVED_CONFIRMED: "Confirmed",
           RESOLVED_REJECTED:  "Rejected",
@@ -128,7 +128,7 @@
       }
 
       /* ── Models ───────────────────────────────────────────────────────── */
-      const listModel   = new JSONModel({ orders: [], matched: [], ambiguous: [], unmatched: [] });
+      const listModel   = new JSONModel({ orders: [], matched: [], partial: [], unmatched: [] });
       const detailModel = new JSONModel({ order: null, expected: [], received: [], history: [], detailTab: "items" });
       const bannerModel = new JSONModel({ msg: "", type: "Information", visible: false });
 
@@ -146,14 +146,14 @@
           const d = await odata("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus");
           const orders    = d.value;
           const matched   = orders.filter(o => o.status_code === "MATCHED");
-          const ambiguous = orders.filter(o => o.status_code === "AMBIGUOUS");
+          const partial = orders.filter(o => o.status_code === "PARTIAL");
           const unmatched = orders.filter(o => o.status_code === "UNMATCHED");
-          listModel.setData({ orders, matched, ambiguous, unmatched });
+          listModel.setData({ orders, matched, partial, unmatched });
           matchedCountText.setText(String(matched.length));
-          ambiguousCountText.setText(String(ambiguous.length));
+          partialCountText.setText(String(partial.length));
           unmatchedCountText.setText(String(unmatched.length));
           matchedTabFilter.setCount(String(matched.length));
-          ambiguousTabFilter.setCount(String(ambiguous.length));
+          partialTabFilter.setCount(String(partial.length));
           unmatchedTabFilter.setCount(String(unmatched.length));
         } catch (e) {
           showBanner(e.message, "Error");
@@ -328,11 +328,11 @@
       }
 
       const { card: matchedCard,   countText: matchedCountText   } = makeMetricCard("Matched",   "Ready for confirmation");
-      const { card: ambiguousCard, countText: ambiguousCountText } = makeMetricCard("Ambiguous", "Need review");
+      const { card: partialCard, countText: partialCountText } = makeMetricCard("Partial", "Need review");
       const { card: unmatchedCard, countText: unmatchedCountText } = makeMetricCard("Unmatched", "No match found");
 
       const metricsRow = new HBox({
-        items: [matchedCard, ambiguousCard, unmatchedCard],
+        items: [matchedCard, partialCard, unmatchedCard],
       }).addStyleClass("rgmMetricsRow");
 
       /* ── Tab table factory ── */
@@ -377,15 +377,15 @@
 
       /* ── Tab filters ── */
       const matchedTabFilter   = new IconTabFilter({ text: "Matched",   key: "matched",   count: "0" });
-      const ambiguousTabFilter = new IconTabFilter({ text: "Ambiguous", key: "ambiguous", count: "0" });
+      const partialTabFilter = new IconTabFilter({ text: "Partial", key: "partial", count: "0" });
       const unmatchedTabFilter = new IconTabFilter({ text: "Unmatched", key: "unmatched", count: "0" });
 
       matchedTabFilter.addContent(makeOrderTable("/matched"));
-      ambiguousTabFilter.addContent(makeOrderTable("/ambiguous"));
+      partialTabFilter.addContent(makeOrderTable("/partial"));
       unmatchedTabFilter.addContent(makeOrderTable("/unmatched"));
 
       const listTabBar = new IconTabBar({
-        items: [matchedTabFilter, ambiguousTabFilter, unmatchedTabFilter],
+        items: [matchedTabFilter, partialTabFilter, unmatchedTabFilter],
       });
 
       /* ── List page ── */
@@ -424,8 +424,8 @@
         const signal = order?.signalStatus;
         confirmBtn .setVisible(status === "MATCHED");
         escalateBtn.setVisible(status === "MATCHED");
-        resolveBtn .setVisible(status === "AMBIGUOUS");
-        rejectBtn  .setVisible(status === "AMBIGUOUS" || status === "UNMATCHED");
+        resolveBtn .setVisible(status === "PARTIAL");
+        rejectBtn  .setVisible(status === "PARTIAL" || status === "UNMATCHED");
         linkBtn    .setVisible(status === "UNMATCHED");
         retryBtn   .setVisible(signal === "FAILED");
       }

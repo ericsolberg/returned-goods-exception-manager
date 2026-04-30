@@ -48,19 +48,19 @@ describe('ExceptionService — custom action handlers', () => {
 
   // ── escalate ───────────────────────────────────────────────────────────────
 
-  it('escalate transitions MATCHED → AMBIGUOUS', async () => {
+  it('escalate transitions MATCHED → PARTIAL', async () => {
     const id = await seedOrder('MATCHED');
 
     await srv.send({ event: 'escalate', entity: 'ReturnOrders', params: [{ ID: id }], data: { reason: 'Qty mismatch' } });
 
     const [row] = await SELECT.from('returns.exceptions.ReturnOrders').where({ ID: id }).columns('status_code');
-    expect(row.status_code).to.equal('AMBIGUOUS');
+    expect(row.status_code).to.equal('PARTIAL');
   });
 
   // ── resolve ────────────────────────────────────────────────────────────────
 
-  it('resolve ACCEPT transitions AMBIGUOUS → RESOLVED_CONFIRMED', async () => {
-    const id = await seedOrder('AMBIGUOUS');
+  it('resolve ACCEPT transitions PARTIAL → RESOLVED_CONFIRMED', async () => {
+    const id = await seedOrder('PARTIAL');
 
     await srv.send({ event: 'resolve', entity: 'ReturnOrders', params: [{ ID: id }], data: { decision: 'ACCEPT', reason: 'Verified' } });
 
@@ -69,7 +69,7 @@ describe('ExceptionService — custom action handlers', () => {
   });
 
   it('resolve with invalid decision is rejected with 400', async () => {
-    const id = await seedOrder('AMBIGUOUS');
+    const id = await seedOrder('PARTIAL');
     try {
       await srv.send({ event: 'resolve', entity: 'ReturnOrders', params: [{ ID: id }], data: { decision: 'MAYBE', reason: 'Test' } });
       expect.fail('Should have thrown');

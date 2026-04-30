@@ -13,7 +13,6 @@
       <customHeader>
         <Bar>
           <contentLeft>
-            <Image id="tapestryLogo" alt="Tapestry" height="30px" class="sapUiSmallMarginEnd"/>
             <Title text="Returned Goods Exception Management"/>
           </contentLeft>
           <contentRight>
@@ -43,8 +42,8 @@
             <Text text="Ready for confirmation" class="rgmMetricSubtitle"/>
           </VBox>
           <VBox class="rgmMetricCard">
-            <Text text="Ambiguous"      class="rgmMetricLabel"/>
-            <Text text="{= '' + ${list>/ambiguous/length}}" class="rgmMetricCount"/>
+            <Text text="Partial"      class="rgmMetricLabel"/>
+            <Text text="{= '' + ${list>/partial/length}}" class="rgmMetricCount"/>
             <Text text="Need review"    class="rgmMetricSubtitle"/>
           </VBox>
           <VBox class="rgmMetricCard">
@@ -83,11 +82,11 @@
               </Table>
             </IconTabFilter>
 
-            <IconTabFilter id="ambiguousTab" text="Ambiguous" key="ambiguous"
-                           count="{= '' + ${list>/ambiguous/length}}">
+            <IconTabFilter id="partialTab" text="Partial" key="partial"
+                           count="{= '' + ${list>/partial/length}}">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
-                     items="{list>/ambiguous}">
+                     items="{list>/partial}">
                 <columns>
                   <Column width="16rem"><Label text="External Order Ref"/></Column>
                   <Column width="14rem"><Label text="Customer Ref"/></Column>
@@ -202,11 +201,11 @@
             press=".onOpenEscalate"/>
           <Button text="Resolve"
             type="Emphasized"
-            visible="{= ${detail>/order/status_code} === 'AMBIGUOUS'}"
+            visible="{= ${detail>/order/status_code} === 'PARTIAL'}"
             press=".onOpenResolve"/>
           <Button text="Reject"
             type="Reject"
-            visible="{= ${detail>/order/status_code} === 'AMBIGUOUS' || ${detail>/order/status_code} === 'UNMATCHED'}"
+            visible="{= ${detail>/order/status_code} === 'PARTIAL' || ${detail>/order/status_code} === 'UNMATCHED'}"
             press=".onOpenReject"/>
           <Button text="Link Order"
             type="Default"
