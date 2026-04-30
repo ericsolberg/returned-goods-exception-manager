@@ -139,8 +139,16 @@ sap.ui.define([
       this.byId("navApp").to(this.byId("detailPage").getId());
     },
 
-    onRefresh: function () {
-      this.loadList();
+    onRefresh: async function () {
+      var oPage = this.byId("listPage");
+      oPage.setBusy(true);
+      console.log("[Refresh] manual refresh triggered");
+      try {
+        await this.loadList();
+        console.log("[Refresh] data reloaded");
+      } finally {
+        oPage.setBusy(false);
+      }
     },
 
     // ── Auto-refresh polling ────────────────────────────────────────────────
