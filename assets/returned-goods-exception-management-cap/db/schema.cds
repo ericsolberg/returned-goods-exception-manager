@@ -9,11 +9,16 @@ entity ReturnOrderStatus : CodeList {
 entity ReturnOrders : cuid, managed {
   externalOrderRef : String(50) not null;
   customerRef      : String(100);
-  receivedDate     : Date;
+  customerName     : String(60);
+  companyCode          : String(4);
+  distributionCenter   : String(4);
+  receivedDate         : Date;
   status           : Association to ReturnOrderStatus;
   signalStatus     : String(20) default 'PENDING';
   linkedOrderId    : String(50);
   notes            : String(500);
+  returnAmount     : Decimal(15,2);
+  proposedClearing : Decimal(15,2);
   expectedItems    : Composition of many ExpectedItems  on expectedItems.order  = $self;
   receivedItems    : Composition of many ReceivedItems  on receivedItems.order  = $self;
   auditHistory     : Composition of many AuditHistory   on auditHistory.order   = $self;
