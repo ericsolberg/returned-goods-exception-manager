@@ -42,3 +42,12 @@ entity AuditHistory : cuid, managed {
   reason  : String(500);
   userId  : String(200);
 }
+
+// Lightweight change marker — one row per watched entity set.
+// Updated (outside the main transaction) after each successful IntakeService
+// write so the UI can detect external mutations via smart polling.
+entity ChangeState {
+  key dataset       : String(50);
+      lastChanged   : Timestamp;
+      lastOperation : String(20);
+}

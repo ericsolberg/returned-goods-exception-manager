@@ -31,4 +31,7 @@ service ExceptionService {
 
   @readonly
   entity ReturnOrderStatus as projection on db.ReturnOrderStatus;
+
+  @readonly
+  entity ChangeState as projection on db.ChangeState;
 }
