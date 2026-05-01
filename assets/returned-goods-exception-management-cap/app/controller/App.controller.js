@@ -19,6 +19,7 @@ sap.ui.define([
       this.getView().setModel(new JSONModel({ orders: [], matched: [], partial: [], unmatched: [] }), "list");
       this.getView().setModel(new JSONModel({ order: null, expected: [], received: [], history: [] }), "detail");
       this.getView().setModel(new JSONModel({ msg: "", type: "Information", visible: false }), "banner");
+      this.getView().setModel(new JSONModel({ companyCodes: [], distributionCenters: [], customerNames: [] }), "filterOptions");
 
       Fragment.load({
         id: this.getView().getId(),
@@ -80,12 +81,10 @@ sap.ui.define([
 
     loadList: async function () {
       try {
-        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,receivedDate,status_code,signalStatus");
-        var orders    = d.value;
-        var matched   = orders.filter(function (o) { return o.status_code === "MATCHED"; });
-        var partial = orders.filter(function (o) { return o.status_code === "PARTIAL"; });
-        var unmatched = orders.filter(function (o) { return o.status_code === "UNMATCHED"; });
-        this.getView().getModel("list").setData({ orders: orders, matched: matched, partial: partial, unmatched: unmatched });
+        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,customerName,companyCode,distributionCenter,receivedDate,status_code,signalStatus");
+        this.getView().getModel("list").setProperty("/orders", d.value);
+        this._populateFilterOptions(d.value);
+        this._applyFilters();
       } catch (e) {
         this._showBanner(e.message, "Error");
       }
@@ -108,6 +107,70 @@ sap.ui.define([
       } catch (e) {
         this._showBanner(e.message, "Error");
       }
+    },
+
+    // ── Filters ─────────────────────────────────────────────────────────────
+
+    _populateFilterOptions: function (orders) {
+      var codeSet = {}, dcSet = {}, custSet = {};
+      var codes = [], dcs = [], custs = [];
+      orders.forEach(function (o) {
+        if (o.companyCode && !codeSet[o.companyCode]) {
+          codeSet[o.companyCode] = true;
+          codes.push({ key: o.companyCode, text: o.companyCode });
+        }
+        if (o.distributionCenter && !dcSet[o.distributionCenter]) {
+          dcSet[o.distributionCenter] = true;
+          dcs.push({ key: o.distributionCenter, text: o.distributionCenter });
+        }
+        if (o.customerName && !custSet[o.customerName]) {
+          custSet[o.customerName] = true;
+          custs.push({ key: o.customerName, text: o.customerName });
+        }
+      });
+      codes.sort(function (a, b) { return a.key.localeCompare(b.key); });
+      dcs.sort(function (a, b) { return a.key.localeCompare(b.key); });
+      custs.sort(function (a, b) { return a.key.localeCompare(b.key); });
+      this.getView().getModel("filterOptions").setData({
+        companyCodes: codes, distributionCenters: dcs, customerNames: custs
+      });
+    },
+
+    _applyFilters: function () {
+      var aCodes = this.byId("filterCompanyCode").getSelectedKeys();
+      var aDCs   = this.byId("filterDC").getSelectedKeys();
+      var sDate  = this.byId("filterDate").getValue();
+      var aCusts = this.byId("filterCustomerName").getSelectedKeys();
+
+      var orders   = this.getView().getModel("list").getProperty("/orders") || [];
+      var filtered = orders.filter(function (o) {
+        if (aCodes.length && aCodes.indexOf(o.companyCode)        === -1) return false;
+        if (aDCs.length   && aDCs.indexOf(o.distributionCenter)   === -1) return false;
+        if (sDate         && o.receivedDate !== sDate)                    return false;
+        if (aCusts.length && aCusts.indexOf(o.customerName)       === -1) return false;
+        return true;
+      });
+
+      if (aCodes.length || aDCs.length || sDate || aCusts.length) {
+        console.log("[Filter] " + filtered.length + " of " + orders.length + " orders");
+      }
+
+      var oList = this.getView().getModel("list");
+      oList.setProperty("/matched",   filtered.filter(function (o) { return o.status_code === "MATCHED"; }));
+      oList.setProperty("/partial",   filtered.filter(function (o) { return o.status_code === "PARTIAL"; }));
+      oList.setProperty("/unmatched", filtered.filter(function (o) { return o.status_code === "UNMATCHED"; }));
+    },
+
+    onFilterChange: function () {
+      this._applyFilters();
+    },
+
+    onClearFilters: function () {
+      this.byId("filterCompanyCode").setSelectedKeys([]);
+      this.byId("filterDC").setSelectedKeys([]);
+      this.byId("filterDate").setValue("");
+      this.byId("filterCustomerName").setSelectedKeys([]);
+      this._applyFilters();
     },
 
     _callAction: async function (action, body) {

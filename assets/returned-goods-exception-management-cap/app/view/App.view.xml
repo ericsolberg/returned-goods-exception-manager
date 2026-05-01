@@ -34,6 +34,50 @@
           close=".onBannerClose"
           class="sapUiSmallMarginBottom"/>
 
+        <!-- ── Filter Bar ────────────────────────────────────────────────── -->
+        <HBox renderType="Bare" wrap="Wrap" alignItems="End"
+              class="rgmFilterBar sapUiSmallMarginBottom">
+          <VBox class="rgmFilterField">
+            <Label text="Company Code" labelFor="filterCompanyCode"/>
+            <MultiComboBox id="filterCompanyCode" width="10rem"
+                placeholder="All"
+                selectionChange=".onFilterChange"
+                items="{filterOptions>/companyCodes}">
+              <core:Item key="{filterOptions>key}" text="{filterOptions>text}"/>
+            </MultiComboBox>
+          </VBox>
+          <VBox class="rgmFilterField">
+            <Label text="Distribution Center" labelFor="filterDC"/>
+            <MultiComboBox id="filterDC" width="11rem"
+                placeholder="All"
+                selectionChange=".onFilterChange"
+                items="{filterOptions>/distributionCenters}">
+              <core:Item key="{filterOptions>key}" text="{filterOptions>text}"/>
+            </MultiComboBox>
+          </VBox>
+          <VBox class="rgmFilterField">
+            <Label text="Received Date" labelFor="filterDate"/>
+            <DatePicker id="filterDate" width="11rem"
+                placeholder="Any date"
+                valueFormat="yyyy-MM-dd"
+                displayFormat="MMM d, yyyy"
+                change=".onFilterChange"/>
+          </VBox>
+          <VBox class="rgmFilterField">
+            <Label text="Customer Name" labelFor="filterCustomerName"/>
+            <MultiComboBox id="filterCustomerName" width="18rem"
+                placeholder="All"
+                selectionChange=".onFilterChange"
+                items="{filterOptions>/customerNames}">
+              <core:Item key="{filterOptions>key}" text="{filterOptions>text}"/>
+            </MultiComboBox>
+          </VBox>
+          <VBox justifyContent="End" class="rgmFilterField">
+            <Button text="Clear" icon="sap-icon://clear-filter"
+                    type="Transparent" press=".onClearFilters"/>
+          </VBox>
+        </HBox>
+
         <!-- Metric cards -->
         <HBox class="rgmMetricsRow">
           <VBox class="rgmMetricCard">
