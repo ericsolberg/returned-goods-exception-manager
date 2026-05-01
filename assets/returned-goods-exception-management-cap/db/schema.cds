@@ -30,6 +30,8 @@ entity ExpectedItems : cuid {
   materialDescription : String(200);
   expectedQty         : Decimal(10,3);
   unit                : String(10);
+  upcCode             : String(20);
+  sku                 : String(50);
 }
 
 entity ReceivedItems : cuid {
@@ -39,6 +41,8 @@ entity ReceivedItems : cuid {
   receivedQty         : Decimal(10,3);
   unit                : String(10);
   condition           : String(50);
+  upcCode             : String(20);
+  sku                 : String(50);
 }
 
 entity AuditHistory : cuid, managed {
