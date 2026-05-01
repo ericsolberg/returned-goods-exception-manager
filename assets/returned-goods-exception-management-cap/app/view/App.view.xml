@@ -122,7 +122,7 @@
                   <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
-                  <ColumnListItem>
+                  <ColumnListItem type="Navigation">
                     <cells>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
@@ -151,7 +151,7 @@
                   <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
-                  <ColumnListItem>
+                  <ColumnListItem type="Navigation">
                     <cells>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
@@ -180,7 +180,7 @@
                   <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
-                  <ColumnListItem>
+                  <ColumnListItem type="Navigation">
                     <cells>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
@@ -295,7 +295,7 @@
                     <Column width="5rem" ><Label text="Unit"/></Column>
                   </columns>
                   <items>
-                    <ColumnListItem>
+                    <ColumnListItem type="Navigation">
                       <cells>
                         <Text text="{detail>materialId}"/>
                         <Text text="{detail>materialDescription}"/>
@@ -316,7 +316,7 @@
                     <Column width="8rem" ><Label text="Condition"/></Column>
                   </columns>
                   <items>
-                    <ColumnListItem>
+                    <ColumnListItem type="Navigation">
                       <cells>
                         <Text text="{detail>materialId}"/>
                         <Text text="{detail>materialDescription}"/>
@@ -340,7 +340,7 @@
                   <Column width="auto" ><Label text="Reason"/></Column>
                 </columns>
                 <items>
-                  <ColumnListItem>
+                  <ColumnListItem type="Navigation">
                     <cells>
                       <Text text="{path: 'detail>createdAt', formatter: '.formatTimestamp'}"/>
                       <Text text="{path: 'detail>userId',    formatter: '.formatValue'}"/>
