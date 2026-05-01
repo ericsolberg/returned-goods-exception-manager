@@ -16,7 +16,7 @@ sap.ui.define([
   return Controller.extend("com.tapestry.returnedgoodsexceptionmanagement.controller.App", {
 
     onInit: function () {
-      this.getView().setModel(new JSONModel({ orders: [], matched: [], partial: [], unmatched: [] }), "list");
+      this.getView().setModel(new JSONModel({ orders: [], matched: [], partial: [], unmatched: [], matchedAmount: 0, partialAmount: 0, unmatchedAmount: 0 }), "list");
       this.getView().setModel(new JSONModel({ order: null, expected: [], received: [], history: [] }), "detail");
       this.getView().setModel(new JSONModel({ msg: "", type: "Information", visible: false }), "banner");
       this.getView().setModel(new JSONModel({ companyCodes: [], distributionCenters: [], customerNames: [] }), "filterOptions");
@@ -81,7 +81,7 @@ sap.ui.define([
 
     loadList: async function () {
       try {
-        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,customerName,companyCode,distributionCenter,receivedDate,status_code,signalStatus");
+        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,customerName,companyCode,distributionCenter,receivedDate,status_code,signalStatus,returnAmount");
         this.getView().getModel("list").setProperty("/orders", d.value);
         this._populateFilterOptions(d.value);
         this._applyFilters();
@@ -155,10 +155,17 @@ sap.ui.define([
         console.log("[Filter] " + filtered.length + " of " + orders.length + " orders");
       }
 
+      var matchedArr   = filtered.filter(function (o) { return o.status_code === "MATCHED"; });
+      var partialArr   = filtered.filter(function (o) { return o.status_code === "PARTIAL"; });
+      var unmatchedArr = filtered.filter(function (o) { return o.status_code === "UNMATCHED"; });
+
       var oList = this.getView().getModel("list");
-      oList.setProperty("/matched",   filtered.filter(function (o) { return o.status_code === "MATCHED"; }));
-      oList.setProperty("/partial",   filtered.filter(function (o) { return o.status_code === "PARTIAL"; }));
-      oList.setProperty("/unmatched", filtered.filter(function (o) { return o.status_code === "UNMATCHED"; }));
+      oList.setProperty("/matched",         matchedArr);
+      oList.setProperty("/partial",         partialArr);
+      oList.setProperty("/unmatched",       unmatchedArr);
+      oList.setProperty("/matchedAmount",   matchedArr.reduce(function (s, o) { return s + +(o.returnAmount || 0); }, 0));
+      oList.setProperty("/partialAmount",   partialArr.reduce(function (s, o) { return s + +(o.returnAmount || 0); }, 0));
+      oList.setProperty("/unmatchedAmount", unmatchedArr.reduce(function (s, o) { return s + +(o.returnAmount || 0); }, 0));
     },
 
     onFilterChange: function () {
@@ -359,6 +366,7 @@ sap.ui.define([
     },
 
     formatTimestamp: function (v) { return v ? new Date(v).toLocaleString() : "—"; },
-    formatValue:     function (v) { return v || "—"; }
+    formatValue:     function (v) { return v || "—"; },
+    formatAmount:    function (v) { return "$" + (+(v || 0)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   });
 });

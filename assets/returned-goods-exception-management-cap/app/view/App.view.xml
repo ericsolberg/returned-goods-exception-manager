@@ -80,28 +80,36 @@
 
         <!-- Metric cards -->
         <HBox class="rgmMetricsRow">
-          <VBox class="rgmMetricCard">
-            <Text text="Matched"               class="rgmMetricLabel"/>
-            <Text text="{= '' + ${list>/matched/length}}"   class="rgmMetricCount"/>
-            <Text text="Ready for confirmation" class="rgmMetricSubtitle"/>
-          </VBox>
-          <VBox class="rgmMetricCard">
-            <Text text="Partial"      class="rgmMetricLabel"/>
-            <Text text="{= '' + ${list>/partial/length}}" class="rgmMetricCount"/>
-            <Text text="Need review"    class="rgmMetricSubtitle"/>
-          </VBox>
-          <VBox class="rgmMetricCard">
-            <Text text="Unmatched"      class="rgmMetricLabel"/>
-            <Text text="{= '' + ${list>/unmatched/length}}" class="rgmMetricCount"/>
-            <Text text="No match found" class="rgmMetricSubtitle"/>
-          </VBox>
+          <HBox class="rgmMetricCard rgmMetricCard--matched" alignItems="Center" justifyContent="SpaceBetween">
+            <VBox>
+              <Text text="Matched"               class="rgmMetricLabel"/>
+              <Text text="{= '' + ${list>/matched/length}}"   class="rgmMetricCount"/>
+              <Text text="Ready for confirmation" class="rgmMetricSubtitle"/>
+            </VBox>
+            <Text text="{path: 'list>/matchedAmount', formatter: '.formatAmount'}" class="rgmMetricAmount"/>
+          </HBox>
+          <HBox class="rgmMetricCard rgmMetricCard--partial" alignItems="Center" justifyContent="SpaceBetween">
+            <VBox>
+              <Text text="Partial"      class="rgmMetricLabel"/>
+              <Text text="{= '' + ${list>/partial/length}}" class="rgmMetricCount"/>
+              <Text text="Need review"    class="rgmMetricSubtitle"/>
+            </VBox>
+            <Text text="{path: 'list>/partialAmount', formatter: '.formatAmount'}" class="rgmMetricAmount"/>
+          </HBox>
+          <HBox class="rgmMetricCard rgmMetricCard--unmatched" alignItems="Center" justifyContent="SpaceBetween">
+            <VBox>
+              <Text text="Unmatched"      class="rgmMetricLabel"/>
+              <Text text="{= '' + ${list>/unmatched/length}}" class="rgmMetricCount"/>
+              <Text text="No match found" class="rgmMetricSubtitle"/>
+            </VBox>
+            <Text text="{path: 'list>/unmatchedAmount', formatter: '.formatAmount'}" class="rgmMetricAmount"/>
+          </HBox>
         </HBox>
 
         <!-- Order tabs -->
         <IconTabBar>
           <items>
-            <IconTabFilter id="matchedTab"   text="Matched"   key="matched"
-                           count="{= '' + ${list>/matched/length}}">
+            <IconTabFilter id="matchedTab"   text="Matched"   key="matched">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/matched}">
@@ -126,8 +134,7 @@
               </Table>
             </IconTabFilter>
 
-            <IconTabFilter id="partialTab" text="Partial" key="partial"
-                           count="{= '' + ${list>/partial/length}}">
+            <IconTabFilter id="partialTab" text="Partial" key="partial">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/partial}">
@@ -152,8 +159,7 @@
               </Table>
             </IconTabFilter>
 
-            <IconTabFilter id="unmatchedTab" text="Unmatched" key="unmatched"
-                           count="{= '' + ${list>/unmatched/length}}">
+            <IconTabFilter id="unmatchedTab" text="Unmatched" key="unmatched">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/unmatched}">
