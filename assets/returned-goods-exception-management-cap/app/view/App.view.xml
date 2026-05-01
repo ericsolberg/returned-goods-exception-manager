@@ -250,10 +250,6 @@
             <Text text="{path: 'detail>/order/proposedClearing', formatter: '.formatAmount'}"/>
           </VBox>
           <VBox width="16rem">
-            <Label text="Linked Order ID"/>
-            <Text text="{path: 'detail>/order/linkedOrderId', formatter: '.formatValue'}"/>
-          </VBox>
-          <VBox width="16rem">
             <Label text="Notes"/>
             <Text text="{path: 'detail>/order/notes', formatter: '.formatValue'}"/>
           </VBox>
@@ -281,10 +277,6 @@
             type="Reject"
             visible="{= ${detail>/order/status_code} === 'PARTIAL' || ${detail>/order/status_code} === 'UNMATCHED'}"
             press=".onOpenReject"/>
-          <Button text="Link Order"
-            type="Default"
-            visible="{= ${detail>/order/status_code} === 'UNMATCHED'}"
-            press=".onOpenLink"/>
           <Button text="Retry Signal"
             type="Default"
             visible="{= ${detail>/order/signalStatus} === 'FAILED'}"

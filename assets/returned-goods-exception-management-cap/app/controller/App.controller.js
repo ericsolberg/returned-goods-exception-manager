@@ -321,19 +321,6 @@ sap.ui.define([
     },
     onRejectCancel: function () { this.byId("rejectDialog").close(); },
 
-    onOpenLink: function () {
-      this.byId("linkOrderId").setValue("");
-      this.byId("linkReason").setValue("");
-      this.byId("linkDialog").open();
-    },
-    onLinkConfirm: function () {
-      var linkedOrderId = this.byId("linkOrderId").getValue();
-      var reason        = this.byId("linkReason").getValue();
-      this.byId("linkDialog").close();
-      this._callAction("linkOrder", { linkedOrderId: linkedOrderId, reason: reason });
-    },
-    onLinkCancel: function () { this.byId("linkDialog").close(); },
-
     // ── Formatters ──────────────────────────────────────────────────────────
 
     formatStatusText: function (code) {

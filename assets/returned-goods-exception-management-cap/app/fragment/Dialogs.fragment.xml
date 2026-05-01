@@ -46,19 +46,4 @@
     </endButton>
   </Dialog>
 
-  <Dialog id="linkDialog" title="Link to Sales Order">
-    <content>
-      <Label text="Sales Order ID" required="true" class="sapUiSmallMarginTop"/>
-      <Input id="linkOrderId" width="100%" placeholder="SO-2024-XXXXX"/>
-      <Label text="Reason"/>
-      <TextArea id="linkReason" width="100%" placeholder="Optional reason…" rows="3"/>
-    </content>
-    <beginButton>
-      <Button text="Cancel" type="Default" press=".onLinkCancel"/>
-    </beginButton>
-    <endButton>
-      <Button text="Link" type="Emphasized" press=".onLinkConfirm"/>
-    </endButton>
-  </Dialog>
-
 </core:FragmentDefinition>

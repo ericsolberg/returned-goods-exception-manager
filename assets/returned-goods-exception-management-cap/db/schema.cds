@@ -15,7 +15,6 @@ entity ReturnOrders : cuid, managed {
   receivedDate         : Date;
   status           : Association to ReturnOrderStatus;
   signalStatus     : String(20) default 'PENDING';
-  linkedOrderId    : String(50);
   notes            : String(500);
   returnAmount     : Decimal(15,2);
   proposedClearing : Decimal(15,2);
