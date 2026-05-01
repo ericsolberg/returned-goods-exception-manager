@@ -31,9 +31,12 @@ sap.ui.define([
       }.bind(this));
 
       this._pollTimer = null;
-      this._lastChangeMarker = null; // null = baseline not yet captured by first poll
+      this._lastChangeMarker = undefined; // undefined = baseline fetch in flight
 
       this.loadList();
+      this._fetchChangeMarker().then(function (marker) {
+        this._lastChangeMarker = marker;
+      }.bind(this)).catch(function () {});
       this._startPolling();
     },
 
@@ -239,9 +242,8 @@ sap.ui.define([
       if (document.visibilityState === "hidden") return;
       try {
         var marker = await this._fetchChangeMarker();
-        if (this._lastChangeMarker === null) {
-          // First completed poll — capture the current marker as our baseline.
-          // Don't trigger a refresh here; loadList() already ran in onInit.
+        if (this._lastChangeMarker === undefined) {
+          // Baseline fetch still in flight — capture from this poll as fallback.
           this._lastChangeMarker = marker;
           return;
         }
