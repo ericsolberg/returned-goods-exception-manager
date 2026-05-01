@@ -214,28 +214,40 @@
           class="sapUiSmallMarginBottom"/>
 
         <!-- Status row -->
-        <HBox renderType="Bare" class="sapUiSmallMarginBottom">
-          <ObjectStatus title="Status"
-            text="{path: 'detail>/order/status_code', formatter: '.formatStatusText'}"
-            state="{path: 'detail>/order/status_code', formatter: '.formatStatusState'}"/>
-          <ObjectStatus title="Signal"
-            text="{path: 'detail>/order/signalStatus', formatter: '.formatSignalText'}"
-            state="{path: 'detail>/order/signalStatus', formatter: '.formatSignalState'}"/>
+        <HBox renderType="Bare" class="sapUiSmallMarginBottom" alignItems="Center">
+        <ObjectStatus
+          title="Status"
+          text="{path: 'detail>/order/status_code', formatter: '.formatStatusText'}"
+          state="{path: 'detail>/order/status_code', formatter: '.formatStatusState'}"
+          class="sapUiSmallMarginEnd" />
+
+        <ObjectStatus
+          title="Posting Status"
+          text="{path: 'detail>/order/signalStatus', formatter: '.formatSignalText'}"
+          state="{path: 'detail>/order/signalStatus', formatter: '.formatSignalState'}" />
         </HBox>
 
         <!-- Header form -->
-        <HBox wrap="Wrap" renderType="Bare" class="sapUiSmallMarginBottom">
+        <HBox wrap="Wrap" renderType="Bare" class="sapUiSmallMarginBottom rgmDetailHeader">
           <VBox width="16rem">
-            <Label text="External Order Ref"/>
+            <Label text="Order Number"/>
             <Text text="{path: 'detail>/order/externalOrderRef', formatter: '.formatValue'}"/>
           </VBox>
           <VBox width="16rem">
-            <Label text="Customer Ref"/>
-            <Text text="{path: 'detail>/order/customerRef', formatter: '.formatValue'}"/>
+            <Label text="Customer"/>
+            <Text text="{path: 'detail>/order/customerName', formatter: '.formatValue'}"/>
           </VBox>
           <VBox width="16rem">
             <Label text="Received Date"/>
             <Text text="{path: 'detail>/order/receivedDate', formatter: '.formatValue'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Return Amount"/>
+            <Text text="{path: 'detail>/order/returnAmount', formatter: '.formatAmount'}"/>
+          </VBox>
+          <VBox width="16rem">
+            <Label text="Proposed Clearing"/>
+            <Text text="{path: 'detail>/order/proposedClearing', formatter: '.formatAmount'}"/>
           </VBox>
           <VBox width="16rem">
             <Label text="Linked Order ID"/>
@@ -291,6 +303,8 @@
                   <columns>
                     <Column width="9rem" ><Label text="Material ID"/></Column>
                     <Column width="auto" ><Label text="Description"/></Column>
+                    <Column width="10rem"><Label text="UPC Code"/></Column>
+                    <Column width="10rem"><Label text="SKU"/></Column>
                     <Column width="6rem" hAlign="End"><Label text="Qty"/></Column>
                     <Column width="5rem" ><Label text="Unit"/></Column>
                   </columns>
@@ -299,6 +313,8 @@
                       <cells>
                         <Text text="{detail>materialId}"/>
                         <Text text="{detail>materialDescription}"/>
+                        <Text text="{path: 'detail>upcCode', formatter: '.formatValue'}"/>
+                        <Text text="{path: 'detail>sku',     formatter: '.formatValue'}"/>
                         <Text text="{detail>expectedQty}"/>
                         <Text text="{detail>unit}"/>
                       </cells>
@@ -311,6 +327,8 @@
                   <columns>
                     <Column width="9rem" ><Label text="Material ID"/></Column>
                     <Column width="auto" ><Label text="Description"/></Column>
+                    <Column width="10rem"><Label text="UPC Code"/></Column>
+                    <Column width="10rem"><Label text="SKU"/></Column>
                     <Column width="6rem" hAlign="End"><Label text="Qty"/></Column>
                     <Column width="5rem" ><Label text="Unit"/></Column>
                     <Column width="8rem" ><Label text="Condition"/></Column>
@@ -320,6 +338,8 @@
                       <cells>
                         <Text text="{detail>materialId}"/>
                         <Text text="{detail>materialDescription}"/>
+                        <Text text="{path: 'detail>upcCode', formatter: '.formatValue'}"/>
+                        <Text text="{path: 'detail>sku',     formatter: '.formatValue'}"/>
                         <Text text="{detail>receivedQty}"/>
                         <Text text="{detail>unit}"/>
                         <Text text="{detail>condition}"/>

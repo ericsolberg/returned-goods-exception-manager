@@ -41,6 +41,7 @@
   white-space: nowrap;
   padding-left: 1rem;
 }
+.rgmDetailHeader { gap: 2rem; }
 
 .rgmFilterBar {
   border: 1px solid var(--sapList_BorderColor, #e0e0e0);
