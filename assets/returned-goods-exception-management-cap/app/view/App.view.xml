@@ -114,20 +114,24 @@
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/matched}">
                 <columns>
-                  <Column width="16rem"><Label text="External Order Ref"/></Column>
-                  <Column width="14rem"><Label text="Customer Ref"/></Column>
-                  <Column width="10rem"><Label text="Received Date"/></Column>
-                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                  <Column width="9rem" ><Label text="Status"/></Column>
+                  <Column width="10rem"><Label text="Date Received"/></Column>
+                  <Column width="14rem"><Label text="Order Number"/></Column>
+                  <Column width="16rem"><Label text="Customer"/></Column>
+                  <Column width="10rem" hAlign="End"><Label text="Return Amount"/></Column>
+                  <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
                   <ColumnListItem>
                     <cells>
-                      <Text text="{list>externalOrderRef}"/>
-                      <Text text="{list>customerRef}"/>
-                      <Text text="{list>receivedDate}"/>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
                         state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerName}"/>
+                      <Text text="{path: 'list>returnAmount',      formatter: '.formatAmount'}"/>
+                      <Text text="{path: 'list>proposedClearing',  formatter: '.formatAmount'}"/>
                     </cells>
                   </ColumnListItem>
                 </items>
@@ -139,20 +143,24 @@
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/partial}">
                 <columns>
-                  <Column width="16rem"><Label text="External Order Ref"/></Column>
-                  <Column width="14rem"><Label text="Customer Ref"/></Column>
-                  <Column width="10rem"><Label text="Received Date"/></Column>
-                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                  <Column width="9rem" ><Label text="Status"/></Column>
+                  <Column width="10rem"><Label text="Date Received"/></Column>
+                  <Column width="14rem"><Label text="Order Number"/></Column>
+                  <Column width="16rem"><Label text="Customer"/></Column>
+                  <Column width="10rem" hAlign="End"><Label text="Return Amount"/></Column>
+                  <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
                   <ColumnListItem>
                     <cells>
-                      <Text text="{list>externalOrderRef}"/>
-                      <Text text="{list>customerRef}"/>
-                      <Text text="{list>receivedDate}"/>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
                         state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerName}"/>
+                      <Text text="{path: 'list>returnAmount',      formatter: '.formatAmount'}"/>
+                      <Text text="{path: 'list>proposedClearing',  formatter: '.formatAmount'}"/>
                     </cells>
                   </ColumnListItem>
                 </items>
@@ -164,20 +172,24 @@
                      mode="SingleSelectMaster" selectionChange=".onOrderSelected"
                      items="{list>/unmatched}">
                 <columns>
-                  <Column width="16rem"><Label text="External Order Ref"/></Column>
-                  <Column width="14rem"><Label text="Customer Ref"/></Column>
-                  <Column width="10rem"><Label text="Received Date"/></Column>
-                  <Column width="9rem" ><Label text="Signal Status"/></Column>
+                  <Column width="9rem" ><Label text="Status"/></Column>
+                  <Column width="10rem"><Label text="Date Received"/></Column>
+                  <Column width="14rem"><Label text="Order Number"/></Column>
+                  <Column width="16rem"><Label text="Customer"/></Column>
+                  <Column width="10rem" hAlign="End"><Label text="Return Amount"/></Column>
+                  <Column width="12rem" hAlign="End"><Label text="Proposed Clearing"/></Column>
                 </columns>
                 <items>
                   <ColumnListItem>
                     <cells>
-                      <Text text="{list>externalOrderRef}"/>
-                      <Text text="{list>customerRef}"/>
-                      <Text text="{list>receivedDate}"/>
                       <ObjectStatus
                         text="{path: 'list>signalStatus', formatter: '.formatSignalText'}"
                         state="{path: 'list>signalStatus', formatter: '.formatSignalState'}"/>
+                      <Text text="{list>receivedDate}"/>
+                      <Text text="{list>externalOrderRef}"/>
+                      <Text text="{list>customerName}"/>
+                      <Text text="{path: 'list>returnAmount',      formatter: '.formatAmount'}"/>
+                      <Text text="{path: 'list>proposedClearing',  formatter: '.formatAmount'}"/>
                     </cells>
                   </ColumnListItem>
                 </items>

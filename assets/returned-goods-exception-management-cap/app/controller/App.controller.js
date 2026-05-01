@@ -81,7 +81,7 @@ sap.ui.define([
 
     loadList: async function () {
       try {
-        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,customerName,companyCode,distributionCenter,receivedDate,status_code,signalStatus,returnAmount");
+        var d = await this._fetch("/ReturnOrders?$orderby=createdAt desc&$select=ID,externalOrderRef,customerRef,customerName,companyCode,distributionCenter,receivedDate,status_code,signalStatus,returnAmount,proposedClearing");
         this.getView().getModel("list").setProperty("/orders", d.value);
         this._populateFilterOptions(d.value);
         this._applyFilters();
