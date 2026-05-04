@@ -347,7 +347,7 @@
             const ctx  = item.getBindingContext("list");
             const id   = ctx.getProperty("ID");
             await loadDetail(id);
-            app.to("detailPage");
+            app.to("detailPageId");
           },
           columns: [
             new Column({ header: new Label({ text: "External Order Ref" }), width: "16rem" }),
@@ -390,7 +390,7 @@
 
       /* ── List page ── */
       const listPage = new Page({
-        id: "listPage",
+        id: "listPageId",
         customHeader: new Bar({
           contentLeft: [
             new HTML({ content: '<img src="tapestry-logo.png" alt="Tapestry" style="height:30px;margin-right:8px;vertical-align:middle">' }),
@@ -571,7 +571,7 @@
       detailBanner.bindProperty("visible", "/visible");
 
       const detailPage = new Page({
-        id: "detailPage",
+        id: "detailPageId",
         showNavButton: true,
         navButtonPress: () => { app.back(); bannerModel.setData({ msg: "", type: "Information", visible: false }); },
         title: "Order Detail",

@@ -204,11 +204,11 @@ sap.ui.define([
       var ctx = evt.getParameter("listItem").getBindingContext("list");
       var id  = ctx.getProperty("ID");
       await this.loadDetail(id);
-      this.byId("navApp").to(this.byId("detailPage").getId());
+      this.byId("navAppId").to(this.byId("detailPageId").getId());
     },
 
     onRefresh: async function () {
-      var oPage = this.byId("listPage");
+      var oPage = this.byId("listPageId");
       oPage.setBusy(true);
       console.log("[Refresh] manual refresh triggered");
       try {
@@ -280,7 +280,7 @@ sap.ui.define([
     // ── Detail page handlers ────────────────────────────────────────────────
 
     onNavBack: function () {
-      this.byId("navApp").back();
+      this.byId("navAppId").back();
       this.getView().getModel("banner").setData({ msg: "", type: "Information", visible: false });
     },
 

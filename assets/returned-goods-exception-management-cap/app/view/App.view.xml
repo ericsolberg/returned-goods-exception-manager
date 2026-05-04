@@ -6,10 +6,10 @@
   displayBlock="true">
 
   <!-- ── App shell ───────────────────────────────────────────────────────── -->
-  <App id="navApp">
+  <App id="navAppId">
 
     <!-- ── List Page ──────────────────────────────────────────────────────── -->
-    <Page id="listPage">
+    <Page id="listPageId">
       <customHeader>
         <Bar>
           <contentLeft>
@@ -109,7 +109,7 @@
         <!-- Order tabs -->
         <IconTabBar>
           <items>
-            <IconTabFilter id="matchedTab"   text="Matched"   key="matched">
+            <IconTabFilter id="matchedTabId"   text="Matched"   key="matched">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="MultiSelect" itemPress=".onOrderSelected"
                      items="{list>/matched}">
@@ -167,7 +167,7 @@
               </Table>
             </IconTabFilter>
 
-            <IconTabFilter id="unmatchedTab" text="Unmatched" key="unmatched">
+            <IconTabFilter id="unmatchedTabId" text="Unmatched" key="unmatched">
               <Table growing="true" growingThreshold="20" noDataText="No orders"
                      mode="MultiSelect" itemPress=".onOrderSelected"
                      items="{list>/unmatched}">
@@ -201,7 +201,7 @@
     </Page>
 
     <!-- ── Detail Page ────────────────────────────────────────────────────── -->
-    <Page id="detailPage" showNavButton="true" navButtonPress=".onNavBack"
+    <Page id="detailPageId" showNavButton="true" navButtonPress=".onNavBack"
           title="Order Detail" class="sapUiContentPadding">
       <content>
         <MessageStrip
